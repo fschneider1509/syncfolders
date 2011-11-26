@@ -1,0 +1,2 @@
+comparefolders.o: \
+ /home/fabi/Programmierung/C_CPP/syncfolders/comparefolders.c
