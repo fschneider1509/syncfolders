@@ -50,7 +50,7 @@ void print_copy_activity( filest *pfilea, filest *pfileb )
 
 void print_ok( void )
 {
-
+	fprintf( stdout, "Ok\n" );
 }
 
 int ask_user( char *pfilea, char *pfileb )
@@ -62,10 +62,12 @@ int ask_user( char *pfilea, char *pfileb )
 	 */
 
 	/*variables*/
-	int answer;
+	int answer = 0;
+
+	return answer;
 }
 
-int compare_folders( folderst *pfoldera, folderst *pfolderb )
+void compare_folders( folderst *pfoldera, folderst *pfolderb )
 {
 	/*pfoldera is the leading folder*/
 	
