@@ -5,6 +5,8 @@
 #include "comparefolders.h"
 #include "copyfile.h"
 
+#include <time.h>
+
 /*functions*/
 
 /*comparefolders*/
@@ -45,12 +47,21 @@ int compare_files( filest *pfile_one, filest *pfile_two )
 
 void print_copy_activity( filest *pfilea, filest *pfileb )
 {
-	
+	/*print copy information to the console (or stdout)*/
+	fprintf( stdout, "\tCopy %s (%d Bytes, last change: %s)\n", (*pfilea).filepath, (*pfilea).filesize, ctime( &((*pfilea).changedate) ) );
+	fprintf( stdout, "\tto\n" );
+	fprintf( stdout, "\t%s (%d Bytes, last change: %s)\n", (*pfileb).filepath, (*pfileb).filesize, ctime( &((*pfileb).changedate) ) );
+	fprintf( stdout, "\tCopy state: ");
 }
 
 void print_ok( void )
 {
-	fprintf( stdout, "Ok\n" );
+	fprintf( stdout, "...Ok\n" );
+}
+
+void print_fail( void )
+{
+	fprintf( stdout, "...Fail\n" );
 }
 
 int ask_user( char *pfilea, char *pfileb )
@@ -87,10 +98,18 @@ void compare_folders( folderst *pfoldera, folderst *pfolderb )
 					/*do nothing*/
 					break;
 				case 1:
-					copy_file_on_disk( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) );	
+					print_copy_activity( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) );
+					if( copy_file_on_disk( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) ) == 1 )
+						print_ok();
+					else
+						print_fail();
 					break;
 				case 2:
-					copy_file_on_disk( &((*pfolderb).filelist[ipos]), &((*pfoldera).filelist[i]) );
+					print_copy_activity( &((*pfolderb).filelist[ipos]), &((*pfoldera).filelist[i]) );
+					if( copy_file_on_disk( &((*pfolderb).filelist[ipos]), &((*pfoldera).filelist[i]) ) == 1 )
+						print_ok();
+					else
+						print_fail();
 					break;
 				case 3:
 					/*ask user*/
@@ -110,8 +129,8 @@ int main(int argc, char *argv[])
 	/*variables*/
 	//char *patha = argv[1];
 	//char *pathb = argv[2];
-	char *patha = "/home/fabi/temp/folderA";
-	char *pathb = "/home/fabi/temp/subsetB/folderA";
+	char *patha = "/Users/fabi/temp/folderA";
+	char *pathb = "/Users/fabi/temp/subsetB/folderA";
 
 	/*prepare folder A*/
 	folderst foldera;
@@ -123,12 +142,12 @@ int main(int argc, char *argv[])
 	foldera.rootpath = get_root_folder( patha );
 	
 	read_folder ( patha, &foldera );
-	fprintf( stdout, "content folder %s\n", foldera.folderpath );
+	/*fprintf( stdout, "content folder %s\n", foldera.folderpath );
 	print_file_struct( &foldera );
 	printf("folders:\n");
 	printf_folder_struct( &foldera );
 
-	fprintf( stdout, "\n\n\n" );
+	fprintf( stdout, "\n\n\n" );*/
 	
 	/*prepare folder B*/
 	folderst folderb;
@@ -140,10 +159,10 @@ int main(int argc, char *argv[])
 	folderb.rootpath = get_root_folder( pathb );
 	
 	read_folder ( pathb, &folderb );
-	fprintf( stdout ,"content folder %s\n", folderb.folderpath );
+	/*fprintf( stdout ,"content folder %s\n", folderb.folderpath );
 	print_file_struct( &folderb );
 	printf("folders:\n");
-	printf_folder_struct( &folderb );
+	printf_folder_struct( &folderb );*/
 
 	/*compare the folders*/
 	compare_folders( &foldera, &folderb );
