@@ -51,7 +51,7 @@ int copy_file_on_disk( filest *srcfile, filest *destfile )
 	FILE *dest;
 
 	/*delete destfile*/
-	if( remove( (*destfile).filepath == 0 ) )
+	if( remove( (*destfile).filepath ) == 0 )
 	{
 		/*open srcfile for reading*/
 		src = fopen( (*srcfile).filepath, "r" );

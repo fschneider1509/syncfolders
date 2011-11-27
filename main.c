@@ -47,10 +47,17 @@ int compare_files( filest *pfile_one, filest *pfile_two )
 
 void print_copy_activity( filest *pfilea, filest *pfileb )
 {
+	/*variables*/
+	char *cdatea;
+	char *cdateb;
+
+	cdatea = ctime( &((*pfilea).changedate) );
+	cdateb = ctime( &((*pfileb).changedate) );
+
 	/*print copy information to the console (or stdout)*/
-	fprintf( stdout, "\tCopy %s (%d Bytes, last change: %s)\n", (*pfilea).filepath, (*pfilea).filesize, ctime( &((*pfilea).changedate) ) );
+	fprintf( stdout, "\tCopy %s (%d Bytes, last change: %s)\n", (*pfilea).filepath, (*pfilea).filesize, cdatea );
 	fprintf( stdout, "\tto\n" );
-	fprintf( stdout, "\t%s (%d Bytes, last change: %s)\n", (*pfileb).filepath, (*pfileb).filesize, ctime( &((*pfileb).changedate) ) );
+	fprintf( stdout, "\t%s (%d Bytes, last change: %s)\n", (*pfileb).filepath, (*pfileb).filesize, cdateb );
 	fprintf( stdout, "\tCopy state: ");
 }
 
