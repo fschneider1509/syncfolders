@@ -10,7 +10,7 @@ comparefolders: comparefolders.c
 	gcc -W -g comparefolders.c -c
 
 copyfile: copyfile.c
-	gcc -W -g copyfile.c readfolder.o -c
+	gcc -W -g copyfile.c -c
 	
 clean:
 	rm *.o

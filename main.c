@@ -13,7 +13,7 @@
 int find_file_in_list( filest *pfile, folderst *pfolder )
 {
 	/*variables*/
-	int i = 0;
+	unsigned int i = 0;
 
 	for( i = 0; i < (*pfolder).numfiles; i++ )
 	{
@@ -90,7 +90,7 @@ void compare_folders( folderst *pfoldera, folderst *pfolderb )
 	/*pfoldera is the leading folder*/
 	
 	/*variables*/
-	int i = 0;
+	unsigned int i = 0;
 	int ipos = 0;
 	
 	/*first the files*/
