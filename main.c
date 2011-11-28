@@ -136,8 +136,8 @@ int main(int argc, char *argv[])
 	/*variables*/
 	//char *patha = argv[1];
 	//char *pathb = argv[2];
-	char *patha = "/Users/fabi/temp/folderA";
-	char *pathb = "/Users/fabi/temp/subsetB/folderA";
+	char *patha = "/home/fabi/temp/folderA";
+	char *pathb = "/home/fabi/temp/subsetB/folderA";
 
 	/*prepare folder A*/
 	folderst foldera;
@@ -149,12 +149,12 @@ int main(int argc, char *argv[])
 	foldera.rootpath = get_root_folder( patha );
 	
 	read_folder ( patha, &foldera );
-	/*fprintf( stdout, "content folder %s\n", foldera.folderpath );
+	fprintf( stdout, "content folder %s\n", foldera.folderpath );
 	print_file_struct( &foldera );
 	printf("folders:\n");
 	printf_folder_struct( &foldera );
 
-	fprintf( stdout, "\n\n\n" );*/
+	fprintf( stdout, "\n\n\n" );
 	
 	/*prepare folder B*/
 	folderst folderb;
@@ -166,10 +166,10 @@ int main(int argc, char *argv[])
 	folderb.rootpath = get_root_folder( pathb );
 	
 	read_folder ( pathb, &folderb );
-	/*fprintf( stdout ,"content folder %s\n", folderb.folderpath );
+	fprintf( stdout ,"content folder %s\n", folderb.folderpath );
 	print_file_struct( &folderb );
 	printf("folders:\n");
-	printf_folder_struct( &folderb );*/
+	printf_folder_struct( &folderb );
 
 	/*compare the folders*/
 	compare_folders( &foldera, &folderb );

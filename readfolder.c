@@ -36,7 +36,7 @@ void reset_file( filest *pfile )
 	(*pfile).filepath = NULL;
 	(*pfile).rootpath = NULL;
 	(*pfile).filesize = 0;
-	(*pfile).changedate = NULL;
+	(*pfile).changedate = 0;
 }
 
 char *build_path(char *ppath, char *pfile)
@@ -165,7 +165,7 @@ void free_file_list( folderst *pfolder )
 void free_sub_folder_list( folderst *pfolder )
 {
 	/*variables*/
-	int i;
+	unsigned int i;
 
 	for( i = 0; i < (*pfolder).numfolders; i++ )
 	{
@@ -196,7 +196,7 @@ void free_sub_folder_list( folderst *pfolder )
 void print_file_struct( folderst *pfolder )
 {
 	/*variables*/
-	int i;
+	unsigned int i;
 
 	for( i = 0; i < (*pfolder).numfiles; i++ )
 	{
@@ -207,7 +207,7 @@ void print_file_struct( folderst *pfolder )
 void printf_folder_struct( folderst *pfolder )
 {
 	/*variables*/
-	int i;
+	unsigned int i;
 
 	for( i = 0; i < (*pfolder).numfolders; i++ )
 	{
