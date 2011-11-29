@@ -1,6 +1,56 @@
 /*includes*/
 #include "copyfile.h"
 
+char *remove_trailing_newline( char *pstring )
+{
+	/*variables*/
+	char *new;
+	size_t istringlen;
+	int icnt = 0;
+
+	/*get length of pstring*/
+	istringlen = strlen( pstring );
+
+	new = malloc( sizeof(char) * istringlen-1 + 1 );
+
+	if( new != NULL )
+	{
+		/*copy string without '\n'*/
+		while( pstring[icnt] != '\n' )
+		{
+			new[icnt] = pstring[icnt];
+			icnt++;
+		}
+
+		return new;
+	}
+	else
+		return NULL;
+}
+
+void print_copy_activity( filest *pfilea, filest *pfileb )
+{
+	/*print copy information to the console (or stdout)*/
+	fprintf( stdout, "\tCopy file %s\n", (*pfilea).filepath );
+	fprintf( stdout, "\tsize %d Bytes\n", (*pfilea).filesize );
+	fprintf( stdout, "\tchangedate %s\n", remove_trailing_newline( ctime( &((*pfilea).changedate) ) ) );
+	fprintf( stdout, "\t-to-\n" );
+	fprintf( stdout, "\tfile %s\n", (*pfileb).filepath );
+	fprintf( stdout, "\tsize %d Bytes\n", (*pfileb).filesize );
+	fprintf( stdout, "\tchangedate %s\n", remove_trailing_newline( ctime( &((*pfileb).changedate) ) ) );
+	fprintf( stdout, "\tCopy state: ");
+}
+
+void print_ok( void )
+{
+	fprintf( stdout, "...Ok\n\n" );
+}
+
+void print_fail( void )
+{
+	fprintf( stdout, "...Fail\n\n" );
+}
+
 int set_physical_change_date( time_t *pdate, filest *pfile )
 {
 	struct utimbuf newtime;

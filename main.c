@@ -5,8 +5,6 @@
 #include "comparefolders.h"
 #include "copyfile.h"
 
-#include <time.h>
-
 /*functions*/
 
 /*comparefolders*/
@@ -45,33 +43,7 @@ int compare_files( filest *pfile_one, filest *pfile_two )
 		return 3;
 }
 
-void print_copy_activity( filest *pfilea, filest *pfileb )
-{
-	/*variables*/
-	char *cdatea;
-	char *cdateb;
-
-	cdatea = ctime( &((*pfilea).changedate) );
-	cdateb = ctime( &((*pfileb).changedate) );
-
-	/*print copy information to the console (or stdout)*/
-	fprintf( stdout, "\tCopy %s (%d Bytes, last change: %s)\n", (*pfilea).filepath, (*pfilea).filesize, cdatea );
-	fprintf( stdout, "\tto\n" );
-	fprintf( stdout, "\t%s (%d Bytes, last change: %s)\n", (*pfileb).filepath, (*pfileb).filesize, cdateb );
-	fprintf( stdout, "\tCopy state: ");
-}
-
-void print_ok( void )
-{
-	fprintf( stdout, "...Ok\n" );
-}
-
-void print_fail( void )
-{
-	fprintf( stdout, "...Fail\n" );
-}
-
-int ask_user( char *pfilea, char *pfileb )
+int ask_user( filest *pfilea, filest *pfileb )
 {
 	/* return codes:
 	 * 1: copy file a to file b
@@ -82,7 +54,26 @@ int ask_user( char *pfilea, char *pfileb )
 	/*variables*/
 	int answer = 0;
 
+	fprintf( stdout, "files:\n" );
+	fprintf( stdout, "\t(1) %s, %d Bytes, changedate: %s", (*pfilea).filepath, (*pfilea).filesize, ctime( &((*pfilea).changedate )) );
+	fprintf( stdout, "\t(2) %s, %d Bytes, changedate: %s", (*pfileb).filepath, (*pfileb).filesize, ctime( &((*pfileb).changedate )) );
+	fprintf( stdout, "\n\n" );
+
+	do{
+		fprintf( stdout, "Enter 1: override file (2) with file (1), Enter 2: override file (1) with file (2), Enter 3: do nothing" );
+		answer = fgetc( stdin );
+	}while( answer != 1 || answer != 2 || answer != 3 );
+
 	return answer;
+}
+
+void start_copy( filest *pfilea, filest *pfileb )
+{
+	print_copy_activity( pfilea, pfileb );
+	if( copy_file_on_disk( pfilea, pfileb ) == 1 )
+		print_ok();
+	else
+		print_fail();
 }
 
 void compare_folders( folderst *pfoldera, folderst *pfolderb )
@@ -105,21 +96,27 @@ void compare_folders( folderst *pfoldera, folderst *pfolderb )
 					/*do nothing*/
 					break;
 				case 1:
-					print_copy_activity( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) );
-					if( copy_file_on_disk( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) ) == 1 )
-						print_ok();
-					else
-						print_fail();
+					start_copy( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) );
 					break;
 				case 2:
-					print_copy_activity( &((*pfolderb).filelist[ipos]), &((*pfoldera).filelist[i]) );
-					if( copy_file_on_disk( &((*pfolderb).filelist[ipos]), &((*pfoldera).filelist[i]) ) == 1 )
-						print_ok();
-					else
-						print_fail();
+					start_copy( &((*pfolderb).filelist[ipos]), &((*pfoldera).filelist[i]) );
 					break;
 				case 3:
 					/*ask user*/
+					{
+						switch( ask_user( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) ) )
+						{
+						case 1:
+							start_copy( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) );
+							break;
+						case 2:
+							start_copy( &((*pfolderb).filelist[ipos]), &((*pfoldera).filelist[i]) );
+							break;
+						default:
+							/*do nothing*/
+							break;
+						}
+					}
 					break;
 			}
 		}
@@ -149,12 +146,12 @@ int main(int argc, char *argv[])
 	foldera.rootpath = get_root_folder( patha );
 	
 	read_folder ( patha, &foldera );
-	fprintf( stdout, "content folder %s\n", foldera.folderpath );
+	/*fprintf( stdout, "content folder %s\n", foldera.folderpath );
 	print_file_struct( &foldera );
 	printf("folders:\n");
 	printf_folder_struct( &foldera );
 
-	fprintf( stdout, "\n\n\n" );
+	fprintf( stdout, "\n\n\n" );*/
 	
 	/*prepare folder B*/
 	folderst folderb;
@@ -166,10 +163,10 @@ int main(int argc, char *argv[])
 	folderb.rootpath = get_root_folder( pathb );
 	
 	read_folder ( pathb, &folderb );
-	fprintf( stdout ,"content folder %s\n", folderb.folderpath );
+	/*fprintf( stdout ,"content folder %s\n", folderb.folderpath );
 	print_file_struct( &folderb );
 	printf("folders:\n");
-	printf_folder_struct( &folderb );
+	printf_folder_struct( &folderb );*/
 
 	/*compare the folders*/
 	compare_folders( &foldera, &folderb );
