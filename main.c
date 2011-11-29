@@ -60,8 +60,9 @@ int ask_user( filest *pfilea, filest *pfileb )
 	fprintf( stdout, "\n\n" );
 
 	do{
-		fprintf( stdout, "Enter 1: override file (2) with file (1), Enter 2: override file (1) with file (2), Enter 3: do nothing" );
-		answer = fgetc( stdin );
+		fprintf( stdout, "Enter 1: override file (2) with file (1), Enter 2: override file (1) with file (2), Enter 3: do nothing\n" );
+		fprintf( stdout, "Answer: ");
+		scanf( "%d", &answer );
 	}while( answer != 1 || answer != 2 || answer != 3 );
 
 	return answer;

@@ -232,6 +232,7 @@ int read_folder( char *ppath, folderst *pfolder )
 	/*open dir*/
 	curdir = opendir( ppath );
 
+	/*build up a tree for the current folder*/
 	if( curdir != NULL )
 	{
 		/*get folder content*/
