@@ -3,6 +3,7 @@
 
 /*includes*/
 #include <stdio.h>
+#include "readfolder.h"
 
 /*prototypes*/
 extern int ask_user( filest*, filest* );

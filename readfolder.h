@@ -10,7 +10,6 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <time.h>
-#include "consoleprint.h"
 
 /*structs*/
 struct filestruct{
@@ -34,6 +33,9 @@ struct folderstruct{
 	unsigned int folderlayer;
 };
 typedef struct folderstruct folderst;
+
+/*include it later because it needs the structs*/
+#include "consoleprint.h"
 
 /*function prototypes*/
 extern void reset_folder( folderst* );
