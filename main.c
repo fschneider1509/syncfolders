@@ -4,10 +4,34 @@
 #include "readfolder.h"
 #include "comparefolders.h"
 #include "copyfile.h"
+#include "consoleprint.h"
 
 /*functions*/
 
 /*comparefolders*/
+int find_folder_in_list( folderst *pdestfolder, folderst *psearchfolder )
+{
+	/*variables*/
+	int i = 0;
+
+	for( i = 0; i < (*psearchfolder).numfolders; i++ )
+	{
+		/*compare:
+		 * - foldername
+		 * - folderlayer
+		 * - rootpath
+		 */
+		if( strcmp( (*pdestfolder).foldername, (*psearchfolder).folderlist[i].foldername ) == 0 &&
+			(*pdestfolder).folderlayer == (*psearchfolder).folderlist[i].folderlayer &&
+			strcmp( (*pdestfolder).rootpath, (*psearchfolder).folderlist[i] ) == 0	)
+			return i;
+		else
+			return -1;
+	}
+
+	return -1;
+}
+
 int find_file_in_list( filest *pfile, folderst *pfolder )
 {
 	/*variables*/
@@ -74,36 +98,38 @@ void compare_folders( folderst *pfoldera, folderst *pfolderb )
 	
 	/*variables*/
 	unsigned int i = 0;
-	int ipos = 0;
+	unsigned int j = 0;
+	int iposfile = 0;
+	int iposfolder = 0;
 	filest tmpfile;
 	
 	/*first the files*/
 	for( i = 0; i < (*pfoldera).numfiles; i++ )
 	{
-		ipos = find_file_in_list( &((*pfoldera).filelist[i]), pfolderb );
-		if( ipos > -1 )
+		iposfile = find_file_in_list( &((*pfoldera).filelist[i]), pfolderb );
+		if( iposfile > -1 )
 		{
-			switch( compare_files( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) ) )
+			switch( compare_files( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) ) )
 			{
 				case 0:
 					/*do nothing*/
 					break;
 				case 1:
-					start_copy( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) );
+					start_copy( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) );
 					break;
 				case 2:
-					start_copy( &((*pfolderb).filelist[ipos]), &((*pfoldera).filelist[i]) );
+					start_copy( &((*pfolderb).filelist[iposfile]), &((*pfoldera).filelist[i]) );
 					break;
 				case 3:
 					/*ask user*/
 					{
-						switch( ask_user( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) ) )
+						switch( ask_user( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) ) )
 						{
 						case 1:
-							start_copy( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) );
+							start_copy( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) );
 							break;
 						case 2:
-							start_copy( &((*pfolderb).filelist[ipos]), &((*pfoldera).filelist[i]) );
+							start_copy( &((*pfolderb).filelist[iposfile]), &((*pfoldera).filelist[i]) );
 							break;
 						default:
 							/*do nothing*/
@@ -138,6 +164,23 @@ void compare_folders( folderst *pfoldera, folderst *pfolderb )
 					print_msg( "file could not be copied", (*pfoldera).filelist[i].filepath, 2 );
 			}
 		}
+	}
+
+	/*copy folders*/
+	for( j = 0; j < (*pfoldera).numfolders; j++ )
+	{
+		/*search for current folder in list of folderb*/
+		iposfolder = find_folder_in_list( &((*pfoldera).folderlist[i]), pfolderb );
+
+		if( iposfolder != -1 )
+		{
+			/*sync file lists*/
+		}
+		else
+		{
+			/*copy folder*/
+		}
+
 	}
 }
 
