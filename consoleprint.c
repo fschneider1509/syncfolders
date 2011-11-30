@@ -54,3 +54,19 @@ void print_fail( void )
 {
 	fprintf( stdout, "...Fail\n\n" );
 }
+
+void print_msg( char *pmsg, char *pparam, int ptype )
+{
+	switch( ptype )
+	{
+		case 1:
+			fprintf( stdout, "%s:%s\n", pmsg, pparam );
+			break;
+		case 2:
+			fprintf( stderr, "\t%s:%s\n", pmsg, pparam );
+			break;
+		default:
+			fprintf( stdout, "message: %s:%s\n", pmsg, pparam );
+			break;
+	}
+}

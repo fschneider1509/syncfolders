@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <time.h>
+#include "consoleprint.h"
 
 /*structs*/
 struct filestruct{
@@ -35,7 +36,6 @@ struct folderstruct{
 typedef struct folderstruct folderst;
 
 /*function prototypes*/
-extern void print_msg( char*, char*, int );
 extern void reset_folder( folderst* );
 extern void reset_file( filest* );
 extern char *remove_trailing_newline( char* );
