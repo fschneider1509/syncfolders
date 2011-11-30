@@ -130,7 +130,8 @@ int append_sub_folder_to_list( folderst *pfolder, folderst *psubfolder )
 
 	if( (*pfolder).folderlist != NULL )
 	{
-		(*pfolder).folderlist[pfolder->numfolders] =  *psubfolder;
+		(*pfolder).folderlist[(*pfolder).numfolders] =  *psubfolder;
+		(*pfolder).numfolders++;
 		return 1;
 	}
 	else
@@ -147,7 +148,8 @@ int append_file_to_list( folderst *pfolder, filest *pfile )
 
 	if( (*pfolder).filelist != NULL )
 	{
-		(*pfolder).filelist[pfolder->numfiles] = *pfile;
+		(*pfolder).filelist[(*pfolder).numfiles] = *pfile;
+		(*pfolder).numfiles++;
 		return 1;
 	}
 	else
@@ -266,7 +268,6 @@ int read_folder( char *ppath, folderst *pfolder )
 
 						/*add folder to folder list*/
 						append_sub_folder_to_list ( pfolder, &subFl );
-						pfolder->numfolders++;
 						break;
 					}
 					case 2:
@@ -287,7 +288,6 @@ int read_folder( char *ppath, folderst *pfolder )
 
 						/*add file to file list*/
 						append_file_to_list( pfolder, &tmpFl );						
-						pfolder->numfiles++;
 						break;
 					}
 					case -1:

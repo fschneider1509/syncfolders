@@ -21,11 +21,44 @@ char *remove_trailing_newline( char *pstring )
 			new[icnt] = pstring[icnt];
 			icnt++;
 		}
+		icnt++;
+		new[icnt] = '\0';
 
 		return new;
 	}
 	else
 		return NULL;
+}
+
+int ask_user( filest *pfilea, filest *pfileb )
+{
+	/* return codes:
+	 * 1: copy file a to file b
+	 * 2: copy file b to file a
+	 * 3: do nothing
+	 */
+
+	/*variables*/
+	int answer = 0;
+	int check = 0;
+
+	fprintf( stdout, "files:\n" );
+	fprintf( stdout, "\t(1) %s, %d Bytes, changedate: %s", (*pfilea).filepath, (*pfilea).filesize, ctime( &((*pfilea).changedate )) );
+	fprintf( stdout, "\t(2) %s, %d Bytes, changedate: %s", (*pfileb).filepath, (*pfileb).filesize, ctime( &((*pfileb).changedate )) );
+	fprintf( stdout, "\n\n" );
+
+	do{
+		fprintf( stdout, "1: override file (2) with file (1), 2: override file (1) with file (2), 3: do nothing\n" );
+		fprintf( stdout, "Answer: ");
+		scanf( "%d", &answer );
+
+		/*check answer*/
+		if( answer == 1 || answer == 2 || answer == 3 )
+			check = 1;
+
+	}while( check != 1 );
+
+	return answer;
 }
 
 void print_copy_activity( filest *pfilea, filest *pfileb )

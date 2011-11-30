@@ -8,6 +8,7 @@
 
 /*prototypes*/
 extern char *remove_trailing_newline( char* );
+extern int ask_user( filest*, filest* );
 extern void print_copy_activity( filest*, filest* );
 extern void print_ok();
 extern void print_false();

@@ -43,31 +43,6 @@ int compare_files( filest *pfile_one, filest *pfile_two )
 		return 3;
 }
 
-int ask_user( filest *pfilea, filest *pfileb )
-{
-	/* return codes:
-	 * 1: copy file a to file b
-	 * 2: copy file b to file a
-	 * 3: do nothing
-	 */
-
-	/*variables*/
-	int answer = 0;
-
-	fprintf( stdout, "files:\n" );
-	fprintf( stdout, "\t(1) %s, %d Bytes, changedate: %s", (*pfilea).filepath, (*pfilea).filesize, ctime( &((*pfilea).changedate )) );
-	fprintf( stdout, "\t(2) %s, %d Bytes, changedate: %s", (*pfileb).filepath, (*pfileb).filesize, ctime( &((*pfileb).changedate )) );
-	fprintf( stdout, "\n\n" );
-
-	do{
-		fprintf( stdout, "Enter 1: override file (2) with file (1), Enter 2: override file (1) with file (2), Enter 3: do nothing\n" );
-		fprintf( stdout, "Answer: ");
-		scanf( "%d", &answer );
-	}while( answer != 1 || answer != 2 || answer != 3 );
-
-	return answer;
-}
-
 void start_copy( filest *pfilea, filest *pfileb )
 {
 	print_copy_activity( pfilea, pfileb );
@@ -77,6 +52,22 @@ void start_copy( filest *pfilea, filest *pfileb )
 		print_fail();
 }
 
+int create_shadow_file( char *pfilepath )
+{
+	/*variables*/
+	FILE *tmp;
+
+	tmp = fopen( pfilepath, "w+" );
+
+	if( tmp != NULL )
+	{
+		fclose( tmp );
+		return 1;
+	}
+	else
+		return -1;
+}
+
 void compare_folders( folderst *pfoldera, folderst *pfolderb )
 {
 	/*pfoldera is the leading folder*/
@@ -84,6 +75,7 @@ void compare_folders( folderst *pfoldera, folderst *pfolderb )
 	/*variables*/
 	unsigned int i = 0;
 	int ipos = 0;
+	filest tmpfile;
 	
 	/*first the files*/
 	for( i = 0; i < (*pfoldera).numfiles; i++ )
@@ -123,7 +115,28 @@ void compare_folders( folderst *pfoldera, folderst *pfolderb )
 		}
 		else
 		{
-			/*copy file from foldera to folderb*/
+			/*file was not found;
+			 *copy file from foldera to folderb;
+			 * -> create new file and append it to the file list
+			 *    of the current folder
+			 */
+
+			/*make a copy of the current file form foldera*/
+			tmpfile = (*pfoldera).filelist[i];
+
+			/*create new filepath*/
+			tmpfile.filepath = build_path( (*pfolderb).folderpath, (*pfoldera).filelist[i].filename );
+
+			/*append file to list*/
+			if( append_file_to_list( pfolderb, &tmpfile ) == 1 )
+			{
+				/*create shadowfile*/
+				if( create_shadow_file( tmpfile.filepath ) == 1 )
+					/*copy file on disk*/
+					start_copy( &((*pfoldera).filelist[i]), &tmpfile );
+				else
+					print_msg( "file could not be copied", (*pfoldera).filelist[i].filepath, 2 );
+			}
 		}
 	}
 }
