@@ -1,6 +1,8 @@
 /*includes*/
 #include "copyfile.h"
 
+
+/*Funktion funktioniert nicht*/
 char *remove_trailing_newline( char *pstring )
 {
 	/*variables*/
