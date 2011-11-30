@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 	/*variables*/
 	//char *patha = argv[1];
 	//char *pathb = argv[2];
-	char *patha = "/home/fabi/temp/folderA";
+	char *patha = "/home/temp/folderA";
 	char *pathb = "/home/fabi/temp/subsetB/folderA";
 
 	/*prepare folder A*/
