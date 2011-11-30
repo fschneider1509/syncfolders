@@ -3,11 +3,9 @@
 
 /*includes*/
 #include <utime.h>
-#include <time.h>
 #include "readfolder.h"
 
 /*prototypes*/
-extern char *remove_trailing_newline( char* );
 extern int ask_user( filest*, filest* );
 extern void print_copy_activity( filest*, filest* );
 extern void print_ok();

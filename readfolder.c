@@ -39,6 +39,37 @@ void reset_file( filest *pfile )
 	(*pfile).changedate = 0;
 }
 
+char *remove_trailing_newline( char *psrc )
+{
+	/*variables*/
+	char *new;
+	char *tmp;
+	size_t istringlen;
+	int icnt = 0;
+
+
+	/*get length of psrc*/
+	istringlen = strlen( psrc );
+
+	/*do not add +1 because the '\n' "slot" is free :)*/
+	new = malloc( sizeof(char) * istringlen );
+
+	/*save first address of the string*/
+	tmp = new;
+
+	if( new != NULL )
+	{
+		do
+		{
+			*new++ = *psrc++;
+		}while( *psrc != '\n' );
+		*new++ = '\0';
+		return tmp;
+	}
+	else
+		return NULL;
+}
+
 char *build_path(char *ppath, char *pfile)
 {
 	/*variables*/
@@ -281,6 +312,7 @@ int read_folder( char *ppath, folderst *pfolder )
 						tmpFl.filesize = get_file_size( &fileattributes );
 						/*get changedate*/
 						tmpFl.changedate = get_change_date( &fileattributes );
+						tmpFl.str_changedate = remove_trailing_newline( ctime( &(tmpFl.changedate) ) );
 						/*set filepath*/
 						tmpFl.filepath = curfl;
 						/*set rootpath*/

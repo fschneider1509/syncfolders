@@ -1,37 +1,6 @@
 /*includes*/
 #include "copyfile.h"
 
-
-/*Funktion funktioniert nicht*/
-char *remove_trailing_newline( char *pstring )
-{
-	/*variables*/
-	char *new;
-	size_t istringlen;
-	int icnt = 0;
-
-	/*get length of pstring*/
-	istringlen = strlen( pstring );
-
-	new = malloc( sizeof(char) * istringlen-1 + 1 );
-
-	if( new != NULL )
-	{
-		/*copy string without '\n'*/
-		while( pstring[icnt] != '\n' )
-		{
-			new[icnt] = pstring[icnt];
-			icnt++;
-		}
-		icnt++;
-		new[icnt] = '\0';
-
-		return new;
-	}
-	else
-		return NULL;
-}
-
 int ask_user( filest *pfilea, filest *pfileb )
 {
 	/* return codes:
@@ -44,9 +13,9 @@ int ask_user( filest *pfilea, filest *pfileb )
 	int answer = 0;
 	int check = 0;
 
-	fprintf( stdout, "files:\n" );
-	fprintf( stdout, "\t(1) %s, %d Bytes, changedate: %s", (*pfilea).filepath, (*pfilea).filesize, ctime( &((*pfilea).changedate )) );
-	fprintf( stdout, "\t(2) %s, %d Bytes, changedate: %s", (*pfileb).filepath, (*pfileb).filesize, ctime( &((*pfileb).changedate )) );
+	fprintf( stdout, "file confilict:\n" );
+	fprintf( stdout, "\t(1) %s, %d Bytes, changedate: %s", (*pfilea).filepath, (*pfilea).filesize, (*pfilea).str_changedate );
+	fprintf( stdout, "\t(2) %s, %d Bytes, changedate: %s", (*pfileb).filepath, (*pfileb).filesize, (*pfileb).str_changedate );
 	fprintf( stdout, "\n\n" );
 
 	do{

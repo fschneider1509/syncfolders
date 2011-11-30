@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <time.h>
 
 /*structs*/
 struct filestruct{
@@ -17,6 +18,7 @@ struct filestruct{
 	char *rootpath;
 	unsigned int filesize;
 	time_t changedate;
+	char *str_changedate;
 };
 typedef struct filestruct filest;
 
@@ -36,6 +38,7 @@ typedef struct folderstruct folderst;
 extern void print_msg( char*, char*, int );
 extern void reset_folder( folderst* );
 extern void reset_file( filest* );
+extern char *remove_trailing_newline( char* );
 extern char *build_path( char*, char* );
 extern int is_hidden( char* );
 extern int check_type( struct stat*, char* );
