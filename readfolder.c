@@ -2,22 +2,6 @@
 #include "readfolder.h"
 
 /*functions*/
-void print_msg( char *pmsg, char *pparam, int ptype )
-{
-	switch( ptype )
-	{
-		case 1:
-			fprintf( stdout, "%s:%s\n", pmsg, pparam );
-			break;
-		case 2:
-			fprintf( stderr, "\t%s:%s\n", pmsg, pparam );
-			break;
-		default:
-			fprintf( stdout, "message: %s:%s\n", pmsg, pparam );
-			break;
-	}
-}
-
 void reset_folder( folderst *pfolder )
 {
 	(*pfolder).foldername = NULL;
@@ -37,6 +21,37 @@ void reset_file( filest *pfile )
 	(*pfile).rootpath = NULL;
 	(*pfile).filesize = 0;
 	(*pfile).changedate = 0;
+}
+
+char *remove_trailing_newline( char *psrc )
+{
+	/*variables*/
+	char *new;
+	char *tmp;
+	size_t istringlen;
+	int icnt = 0;
+
+
+	/*get length of psrc*/
+	istringlen = strlen( psrc );
+
+	/*do not add +1 because the '\n' "slot" is free :)*/
+	new = malloc( sizeof(char) * istringlen );
+
+	/*save first address of the string*/
+	tmp = new;
+
+	if( new != NULL )
+	{
+		do
+		{
+			*new++ = *psrc++;
+		}while( *psrc != '\n' );
+		*new++ = '\0';
+		return tmp;
+	}
+	else
+		return NULL;
 }
 
 char *build_path(char *ppath, char *pfile)
@@ -130,7 +145,8 @@ int append_sub_folder_to_list( folderst *pfolder, folderst *psubfolder )
 
 	if( (*pfolder).folderlist != NULL )
 	{
-		(*pfolder).folderlist[pfolder->numfolders] =  *psubfolder;
+		(*pfolder).folderlist[(*pfolder).numfolders] =  *psubfolder;
+		(*pfolder).numfolders++;
 		return 1;
 	}
 	else
@@ -147,7 +163,8 @@ int append_file_to_list( folderst *pfolder, filest *pfile )
 
 	if( (*pfolder).filelist != NULL )
 	{
-		(*pfolder).filelist[pfolder->numfiles] = *pfile;
+		(*pfolder).filelist[(*pfolder).numfiles] = *pfile;
+		(*pfolder).numfiles++;
 		return 1;
 	}
 	else
@@ -232,6 +249,7 @@ int read_folder( char *ppath, folderst *pfolder )
 	/*open dir*/
 	curdir = opendir( ppath );
 
+	/*build up a tree for the current folder*/
 	if( curdir != NULL )
 	{
 		/*get folder content*/
@@ -265,7 +283,6 @@ int read_folder( char *ppath, folderst *pfolder )
 
 						/*add folder to folder list*/
 						append_sub_folder_to_list ( pfolder, &subFl );
-						pfolder->numfolders++;
 						break;
 					}
 					case 2:
@@ -279,6 +296,7 @@ int read_folder( char *ppath, folderst *pfolder )
 						tmpFl.filesize = get_file_size( &fileattributes );
 						/*get changedate*/
 						tmpFl.changedate = get_change_date( &fileattributes );
+						tmpFl.str_changedate = remove_trailing_newline( ctime( &(tmpFl.changedate) ) );
 						/*set filepath*/
 						tmpFl.filepath = curfl;
 						/*set rootpath*/
@@ -286,7 +304,6 @@ int read_folder( char *ppath, folderst *pfolder )
 
 						/*add file to file list*/
 						append_file_to_list( pfolder, &tmpFl );						
-						pfolder->numfiles++;
 						break;
 					}
 					case -1:

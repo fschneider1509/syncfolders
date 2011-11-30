@@ -4,6 +4,7 @@
 /*includes*/
 #include <utime.h>
 #include "readfolder.h"
+#include "consoleprint.h"
 
 /*prototypes*/
 extern int set_physical_change_date( time_t*, filest* );

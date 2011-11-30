@@ -4,12 +4,34 @@
 #include "readfolder.h"
 #include "comparefolders.h"
 #include "copyfile.h"
-
-#include <time.h>
+#include "consoleprint.h"
 
 /*functions*/
 
 /*comparefolders*/
+int find_folder_in_list( folderst *pdestfolder, folderst *psearchfolder )
+{
+	/*variables*/
+	int i = 0;
+
+	for( i = 0; i < (*psearchfolder).numfolders; i++ )
+	{
+		/*compare:
+		 * - foldername
+		 * - folderlayer
+		 * - rootpath
+		 */
+		if( strcmp( (*pdestfolder).foldername, (*psearchfolder).folderlist[i].foldername ) == 0 &&
+			(*pdestfolder).folderlayer == (*psearchfolder).folderlist[i].folderlayer &&
+			strcmp( (*pdestfolder).rootpath, (*psearchfolder).folderlist[i] ) == 0	)
+			return i;
+		else
+			return -1;
+	}
+
+	return -1;
+}
+
 int find_file_in_list( filest *pfile, folderst *pfolder )
 {
 	/*variables*/
@@ -45,44 +67,29 @@ int compare_files( filest *pfile_one, filest *pfile_two )
 		return 3;
 }
 
-void print_copy_activity( filest *pfilea, filest *pfileb )
+void start_copy( filest *pfilea, filest *pfileb )
+{
+	print_copy_activity( pfilea, pfileb );
+	if( copy_file_on_disk( pfilea, pfileb ) == 1 )
+		print_ok();
+	else
+		print_fail();
+}
+
+int create_shadow_file( char *pfilepath )
 {
 	/*variables*/
-	char *cdatea;
-	char *cdateb;
+	FILE *tmp;
 
-	cdatea = ctime( &((*pfilea).changedate) );
-	cdateb = ctime( &((*pfileb).changedate) );
+	tmp = fopen( pfilepath, "w+" );
 
-	/*print copy information to the console (or stdout)*/
-	fprintf( stdout, "\tCopy %s (%d Bytes, last change: %s)\n", (*pfilea).filepath, (*pfilea).filesize, cdatea );
-	fprintf( stdout, "\tto\n" );
-	fprintf( stdout, "\t%s (%d Bytes, last change: %s)\n", (*pfileb).filepath, (*pfileb).filesize, cdateb );
-	fprintf( stdout, "\tCopy state: ");
-}
-
-void print_ok( void )
-{
-	fprintf( stdout, "...Ok\n" );
-}
-
-void print_fail( void )
-{
-	fprintf( stdout, "...Fail\n" );
-}
-
-int ask_user( char *pfilea, char *pfileb )
-{
-	/* return codes:
-	 * 1: copy file a to file b
-	 * 2: copy file b to file a
-	 * 3: do nothing
-	 */
-
-	/*variables*/
-	int answer = 0;
-
-	return answer;
+	if( tmp != NULL )
+	{
+		fclose( tmp );
+		return 1;
+	}
+	else
+		return -1;
 }
 
 void compare_folders( folderst *pfoldera, folderst *pfolderb )
@@ -91,42 +98,89 @@ void compare_folders( folderst *pfoldera, folderst *pfolderb )
 	
 	/*variables*/
 	unsigned int i = 0;
-	int ipos = 0;
+	unsigned int j = 0;
+	int iposfile = 0;
+	int iposfolder = 0;
+	filest tmpfile;
 	
 	/*first the files*/
 	for( i = 0; i < (*pfoldera).numfiles; i++ )
 	{
-		ipos = find_file_in_list( &((*pfoldera).filelist[i]), pfolderb );
-		if( ipos > -1 )
+		iposfile = find_file_in_list( &((*pfoldera).filelist[i]), pfolderb );
+		if( iposfile > -1 )
 		{
-			switch( compare_files( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) ) )
+			switch( compare_files( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) ) )
 			{
 				case 0:
 					/*do nothing*/
 					break;
 				case 1:
-					print_copy_activity( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) );
-					if( copy_file_on_disk( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[ipos]) ) == 1 )
-						print_ok();
-					else
-						print_fail();
+					start_copy( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) );
 					break;
 				case 2:
-					print_copy_activity( &((*pfolderb).filelist[ipos]), &((*pfoldera).filelist[i]) );
-					if( copy_file_on_disk( &((*pfolderb).filelist[ipos]), &((*pfoldera).filelist[i]) ) == 1 )
-						print_ok();
-					else
-						print_fail();
+					start_copy( &((*pfolderb).filelist[iposfile]), &((*pfoldera).filelist[i]) );
 					break;
 				case 3:
 					/*ask user*/
+					{
+						switch( ask_user( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) ) )
+						{
+						case 1:
+							start_copy( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) );
+							break;
+						case 2:
+							start_copy( &((*pfolderb).filelist[iposfile]), &((*pfoldera).filelist[i]) );
+							break;
+						default:
+							/*do nothing*/
+							break;
+						}
+					}
 					break;
 			}
 		}
 		else
 		{
-			/*copy file from foldera to folderb*/
+			/*file was not found;
+			 *copy file from foldera to folderb;
+			 * -> create new file and append it to the file list
+			 *    of the current folder
+			 */
+
+			/*make a copy of the current file form foldera*/
+			tmpfile = (*pfoldera).filelist[i];
+
+			/*create new filepath*/
+			tmpfile.filepath = build_path( (*pfolderb).folderpath, (*pfoldera).filelist[i].filename );
+
+			/*append file to list*/
+			if( append_file_to_list( pfolderb, &tmpfile ) == 1 )
+			{
+				/*create shadowfile*/
+				if( create_shadow_file( tmpfile.filepath ) == 1 )
+					/*copy file on disk*/
+					start_copy( &((*pfoldera).filelist[i]), &tmpfile );
+				else
+					print_msg( "file could not be copied", (*pfoldera).filelist[i].filepath, 2 );
+			}
 		}
+	}
+
+	/*copy folders*/
+	for( j = 0; j < (*pfoldera).numfolders; j++ )
+	{
+		/*search for current folder in list of folderb*/
+		iposfolder = find_folder_in_list( &((*pfoldera).folderlist[i]), pfolderb );
+
+		if( iposfolder != -1 )
+		{
+			/*sync file lists*/
+		}
+		else
+		{
+			/*copy folder*/
+		}
+
 	}
 }
 
@@ -149,12 +203,12 @@ int main(int argc, char *argv[])
 	foldera.rootpath = get_root_folder( patha );
 	
 	read_folder ( patha, &foldera );
-	fprintf( stdout, "content folder %s\n", foldera.folderpath );
+	/*fprintf( stdout, "content folder %s\n", foldera.folderpath );
 	print_file_struct( &foldera );
 	printf("folders:\n");
 	printf_folder_struct( &foldera );
 
-	fprintf( stdout, "\n\n\n" );
+	fprintf( stdout, "\n\n\n" );*/
 	
 	/*prepare folder B*/
 	folderst folderb;
@@ -166,10 +220,10 @@ int main(int argc, char *argv[])
 	folderb.rootpath = get_root_folder( pathb );
 	
 	read_folder ( pathb, &folderb );
-	fprintf( stdout ,"content folder %s\n", folderb.folderpath );
+	/*fprintf( stdout ,"content folder %s\n", folderb.folderpath );
 	print_file_struct( &folderb );
 	printf("folders:\n");
-	printf_folder_struct( &folderb );
+	printf_folder_struct( &folderb );*/
 
 	/*compare the folders*/
 	compare_folders( &foldera, &folderb );
