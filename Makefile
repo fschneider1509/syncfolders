@@ -1,4 +1,4 @@
-all: readfolder consoleprint comparefolders copyfile syncfolders clean
+all: readfolder consoleprint comparefolders copyfile copyfolder syncfolders clean
 
 syncfolders: main.c
 	gcc -W -g main.c readfolder.o consoleprint.o comparefolders.o copyfile.o -o syncfolders
@@ -11,6 +11,9 @@ comparefolders: comparefolders.c
 
 copyfile: copyfile.c
 	gcc -W -g copyfile.c -c
+	
+copyfolder: copyfolder.c
+	gcc -W -g copyfolder.c -c
 	
 consoleprint: consoleprint.c
 	gcc -W -g consoleprint.c -c

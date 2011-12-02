@@ -6,13 +6,22 @@
 #include "copyfile.h"
 #include "consoleprint.h"
 
+#define MODE 0777
+
+/* to do:
+ * - free's
+ * - make functions for copy and find files
+ * - copy folders
+ * - sync file lists of foldersC
+ */
+
 /*functions*/
 
 /*comparefolders*/
 int find_folder_in_list( folderst *pdestfolder, folderst *psearchfolder )
 {
 	/*variables*/
-	int i = 0;
+	unsigned int i = 0;
 
 	for( i = 0; i < (*psearchfolder).numfolders; i++ )
 	{
@@ -23,7 +32,7 @@ int find_folder_in_list( folderst *pdestfolder, folderst *psearchfolder )
 		 */
 		if( strcmp( (*pdestfolder).foldername, (*psearchfolder).folderlist[i].foldername ) == 0 &&
 			(*pdestfolder).folderlayer == (*psearchfolder).folderlist[i].folderlayer &&
-			strcmp( (*pdestfolder).rootpath, (*psearchfolder).folderlist[i] ) == 0	)
+			strcmp( (*pdestfolder).rootpath, (*psearchfolder).folderlist[i].rootpath ) == 0	)
 			return i;
 		else
 			return -1;
@@ -74,6 +83,14 @@ void start_copy( filest *pfilea, filest *pfileb )
 		print_ok();
 	else
 		print_fail();
+}
+
+int copy_folder_on_disk( char *pfolderpath )
+{
+	if( mkdir( pfolderpath,MODE ) != -1 )
+		return 0;
+	else
+		return -1;
 }
 
 int create_shadow_file( char *pfilepath )
@@ -174,7 +191,8 @@ void compare_folders( folderst *pfoldera, folderst *pfolderb )
 
 		if( iposfolder != -1 )
 		{
-			/*sync file lists*/
+			/*start recursion*/
+			compare_folders( &((*pfoldera).folderlist[i]), &((*pfolderb).folderlist[iposfolder]) );
 		}
 		else
 		{
