@@ -99,6 +99,7 @@ void reset_lists( folderst *pfolder )
 	(*pfolder).numfiles = 0;
 	(*pfolder).numfolders = 0;
 	(*pfolder).folderpath = NULL;
+	(*pfolder).empty = 1;
 }
 
 int create_shadow_file( char *pfilepath )
@@ -228,6 +229,12 @@ void init_compare( folderst *pfoldera, folderst *pfolderb )
 	compare_folders( pfoldera, pfolderb );
 	/*pfolderb is leading*/
 	compare_folders( pfolderb, pfoldera );
+
+	/*free memory*/
+	if( (*pfoldera).empty == 0 )
+		free_sub_folder_list( pfoldera );
+	if( (*pfolderb).empty == 0 )
+		free_sub_folder_list( pfolderb );
 }
 
 /*main*/
@@ -274,9 +281,5 @@ int main(int argc, char *argv[])
 	/*compare the folders*/
 	init_compare( &foldera, &folderb);
 
-	/*free memory*/
-	free_sub_folder_list( &foldera );
-	free_sub_folder_list( &folderb );
-	
 	return 0;
 }

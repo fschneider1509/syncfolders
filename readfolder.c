@@ -12,6 +12,7 @@ void reset_folder( folderst *pfolder )
 	(*pfolder).folderlayer = 0;
 	(*pfolder).folderlist = NULL;
 	(*pfolder).filelist = NULL;
+	(*pfolder).empty = 1;
 }
 
 void reset_file( filest *pfile )
@@ -236,6 +237,15 @@ void printf_folder_struct( folderst *pfolder )
 	}
 }
 
+int check_is_empty( folderst *pfolder )
+{
+	if( (*pfolder).folderlist == NULL && (*pfolder).filelist == NULL &&
+			(*pfolder).numfiles == 0 && (*pfolder).numfolders == 0 )
+		return 1;
+	else
+		return 0;
+}
+
 int read_folder( char *ppath, folderst *pfolder )
 {
 	/*variables*/
@@ -316,6 +326,8 @@ int read_folder( char *ppath, folderst *pfolder )
 			{
 				print_msg( "attributes could not be read", curfl, 2 );
 			}
+
+			(*pfolder).empty = check_is_empty( pfolder );
 		}		
 		return 1;
 	}

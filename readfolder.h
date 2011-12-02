@@ -31,6 +31,7 @@ struct folderstruct{
 	unsigned int numfolders;
 	unsigned int numfiles;
 	unsigned int folderlayer;
+	int empty;
 };
 typedef struct folderstruct folderst;
 
