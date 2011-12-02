@@ -10,9 +10,8 @@
 
 /* to do:
  * - free's
- * - make functions for copy and find files
- * - copy folders
- * - sync file lists of foldersC
+ * - check for the same root folder at start
+ * - one folder is empty = Speicherzugriffsfehler!
  */
 
 /*functions*/
@@ -91,6 +90,15 @@ int copy_folder_on_disk( char *pfolderpath )
 		return 0;
 	else
 		return -1;
+}
+
+void reset_lists( folderst *pfolder )
+{
+	(*pfolder).filelist = NULL;
+	(*pfolder).folderlist = NULL;
+	(*pfolder).numfiles = 0;
+	(*pfolder).numfolders = 0;
+	(*pfolder).folderpath = NULL;
 }
 
 int create_shadow_file( char *pfilepath )
@@ -187,19 +195,39 @@ void compare_folders( folderst *pfoldera, folderst *pfolderb )
 	for( j = 0; j < (*pfoldera).numfolders; j++ )
 	{
 		/*search for current folder in list of folderb*/
-		iposfolder = find_folder_in_list( &((*pfoldera).folderlist[i]), pfolderb );
+		iposfolder = find_folder_in_list( &((*pfoldera).folderlist[j]), pfolderb );
 
 		if( iposfolder != -1 )
 		{
 			/*start recursion*/
-			compare_folders( &((*pfoldera).folderlist[i]), &((*pfolderb).folderlist[iposfolder]) );
+			compare_folders( &((*pfoldera).folderlist[j]), &((*pfolderb).folderlist[iposfolder]) );
 		}
 		else
 		{
 			/*copy folder*/
+			folderst tmpfolder = (*pfoldera).folderlist[j];
+			reset_lists( &tmpfolder );
+			tmpfolder.folderpath = build_path( (*pfolderb).folderpath, (*pfoldera).folderlist[j].foldername );
+
+			if( append_sub_folder_to_list( pfolderb, &tmpfolder ) == 1 )
+			{
+				copy_folder_on_disk( tmpfolder.folderpath );
+				/*start recursion to copy the rest of the files*/
+				compare_folders( &((*pfoldera).folderlist[j]), &((*pfolderb).folderlist[(*pfolderb).numfolders-1]) );
+			}
+			else
+				print_msg( "folder could not be created", (*pfoldera).folderlist[j].rootpath, 2 );
 		}
 
 	}
+}
+
+void init_compare( folderst *pfoldera, folderst *pfolderb )
+{
+	/*pfoldera is leading*/
+	compare_folders( pfoldera, pfolderb );
+	/*pfolderb is leading*/
+	compare_folders( pfolderb, pfoldera );
 }
 
 /*main*/
@@ -244,7 +272,7 @@ int main(int argc, char *argv[])
 	printf_folder_struct( &folderb );*/
 
 	/*compare the folders*/
-	compare_folders( &foldera, &folderb );
+	init_compare( &foldera, &folderb);
 
 	/*free memory*/
 	free_sub_folder_list( &foldera );

@@ -29,8 +29,6 @@ char *remove_trailing_newline( char *psrc )
 	char *new;
 	char *tmp;
 	size_t istringlen;
-	int icnt = 0;
-
 
 	/*get length of psrc*/
 	istringlen = strlen( psrc );
