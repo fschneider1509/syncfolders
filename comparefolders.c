@@ -38,7 +38,7 @@ int find_file_in_list( filest *pfile, folderst *pfolder )
 	return -1;
 }
 
-int compare_files( filest *pfile_one, filest *pfile_two )
+int compare_files( filest *pfile_a, filest *pfile_b )
 {
 	/* return codes:
 	 * 0: files are equal
@@ -46,20 +46,20 @@ int compare_files( filest *pfile_one, filest *pfile_two )
 	 * 2: copy fileB to fileA
 	 * 3: ask user
 	 */
-	if( (*pfile_one).filesize == (*pfile_two).filesize &&
-	    (*pfile_one).changedate == (*pfile_two).changedate )
+	if( (*pfile_a).filesize == (*pfile_b).filesize &&
+	    (*pfile_a).changedate == (*pfile_b).changedate )
 			return 0;
-	else if( (*pfile_one).filesize > (*pfile_two).filesize &&
-	         (*pfile_one).changedate > (*pfile_two).changedate )
+	else if( (*pfile_a).filesize > (*pfile_b).filesize &&
+	         (*pfile_a).changedate > (*pfile_b).changedate )
 			return 1;
-	else if( (*pfile_one).filesize < (*pfile_two).filesize &&
-	         (*pfile_one).changedate < (*pfile_two).changedate )
+	else if( (*pfile_a).filesize < (*pfile_b).filesize &&
+	         (*pfile_a).changedate < (*pfile_b).changedate )
 			return 2;
 	else
 		return 3;
 }
 
-void compare_folders( folderst *pfoldera, folderst *pfolderb )
+void compare_folders( folderst *pfolder_a, folderst *pfolder_b )
 {
 	/*pfoldera is the leading folder*/
 
@@ -71,32 +71,32 @@ void compare_folders( folderst *pfoldera, folderst *pfolderb )
 	filest tmpfile;
 
 	/*first the files*/
-	for( i = 0; i < (*pfoldera).numfiles; i++ )
+	for( i = 0; i < (*pfolder_a).numfiles; i++ )
 	{
-		iposfile = find_file_in_list( &((*pfoldera).filelist[i]), pfolderb );
+		iposfile = find_file_in_list( &((*pfolder_a).filelist[i]), pfolder_b );
 		if( iposfile > -1 )
 		{
-			switch( compare_files( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) ) )
+			switch( compare_files( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]) ) )
 			{
 				case 0:
 					/*do nothing*/
 					break;
 				case 1:
-					start_copy( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) );
+					start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]) );
 					break;
 				case 2:
-					start_copy( &((*pfolderb).filelist[iposfile]), &((*pfoldera).filelist[i]) );
+					start_copy( &((*pfolder_b).filelist[iposfile]), &((*pfolder_a).filelist[i]) );
 					break;
 				case 3:
 					/*ask user*/
 					{
-						switch( ask_user( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) ) )
+						switch( ask_user( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]) ) )
 						{
 						case 1:
-							start_copy( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) );
+							start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]) );
 							break;
 						case 2:
-							start_copy( &((*pfolderb).filelist[iposfile]), &((*pfoldera).filelist[i]) );
+							start_copy( &((*pfolder_b).filelist[iposfile]), &((*pfolder_a).filelist[i]) );
 							break;
 						default:
 							/*do nothing*/
@@ -115,66 +115,79 @@ void compare_folders( folderst *pfoldera, folderst *pfolderb )
 			 */
 
 			/*make a copy of the current file form foldera*/
-			tmpfile = (*pfoldera).filelist[i];
+			tmpfile = (*pfolder_a).filelist[i];
 
 			/*create new filepath*/
-			tmpfile.filepath = build_path( (*pfolderb).folderpath, (*pfoldera).filelist[i].filename );
+			tmpfile.filepath = build_path( (*pfolder_b).folderpath, (*pfolder_a).filelist[i].filename );
 
 			/*append file to list*/
-			if( append_file_to_list( pfolderb, &tmpfile ) == 1 )
+			if( append_file_to_list( pfolder_b, &tmpfile ) == 1 )
 			{
 				/*create shadowfile*/
 				if( create_shadow_file( tmpfile.filepath ) == 1 )
 					/*copy file on disk*/
-					start_copy( &((*pfoldera).filelist[i]), &tmpfile );
+					start_copy( &((*pfolder_a).filelist[i]), &tmpfile );
 				else
-					print_msg( "file could not be copied", (*pfoldera).filelist[i].filepath, 2 );
+					print_msg( "file could not be copied", (*pfolder_a).filelist[i].filepath, 2 );
 			}
 		}
 	}
 
 	/*copy folders*/
-	for( j = 0; j < (*pfoldera).numfolders; j++ )
+	for( j = 0; j < (*pfolder_a).numfolders; j++ )
 	{
 		/*search for current folder in list of folderb*/
-		iposfolder = find_folder_in_list( &((*pfoldera).folderlist[j]), pfolderb );
+		iposfolder = find_folder_in_list( &((*pfolder_a).folderlist[j]), pfolder_b );
 
 		if( iposfolder != -1 )
 		{
 			/*start recursion*/
-			compare_folders( &((*pfoldera).folderlist[j]), &((*pfolderb).folderlist[iposfolder]) );
+			compare_folders( &((*pfolder_a).folderlist[j]), &((*pfolder_b).folderlist[iposfolder]) );
 		}
 		else
 		{
 			/*copy folder*/
-			folderst tmpfolder = (*pfoldera).folderlist[j];
+			folderst tmpfolder = (*pfolder_a).folderlist[j];
 			reset_lists( &tmpfolder );
-			tmpfolder.folderpath = build_path( (*pfolderb).folderpath, (*pfoldera).folderlist[j].foldername );
+			tmpfolder.folderpath = build_path( (*pfolder_b).folderpath, (*pfolder_a).folderlist[j].foldername );
 
-			if( append_sub_folder_to_list( pfolderb, &tmpfolder ) == 1 )
+			if( append_sub_folder_to_list( pfolder_b, &tmpfolder ) == 1 )
 			{
 				copy_folder_on_disk( tmpfolder.folderpath );
 				/*start recursion to copy the rest of the files*/
-				compare_folders( &((*pfoldera).folderlist[j]), &((*pfolderb).folderlist[(*pfolderb).numfolders-1]) );
+				compare_folders( &((*pfolder_a).folderlist[j]), &((*pfolder_b).folderlist[(*pfolder_b).numfolders-1]) );
 			}
 			else
-				print_msg( "folder could not be created", (*pfoldera).folderlist[j].rootpath, 2 );
+				print_msg( "folder could not be created", (*pfolder_a).folderlist[j].rootpath, 2 );
 		}
 
 	}
 }
 
-void init_compare( folderst *pfoldera, folderst *pfolderb )
+int check_root_folders( char *ppath_a, char *ppath_b )
 {
-	/*pfoldera is leading*/
-	compare_folders( pfoldera, pfolderb );
-	/*pfolderb is leading*/
-	compare_folders( pfolderb, pfoldera );
+	if( strcmp( get_root_folder( ppath_a ), get_root_folder( ppath_b ) ) == 0 )
+		return 1;
+	else
+		return -1;
+}
 
-	/*free memory*/
-	if( (*pfoldera).empty == 0 )
-		free_sub_folder_list( pfoldera );
-	if( (*pfolderb).empty == 0 )
-		free_sub_folder_list( pfolderb );
+void init_compare( folderst *pfolder_a, folderst *pfolder_b )
+{
+	if( check_root_folders( (*pfolder_a).folderpath, (*pfolder_b).folderpath ) == 1 )
+	{
+		/*pfoldera is leading*/
+		compare_folders( pfolder_a, pfolder_b );
+		/*pfolderb is leading*/
+		compare_folders( pfolder_b, pfolder_a );
+
+		/*free memory*/
+		if( (*pfolder_a).empty == 0 )
+			free_sub_folder_list( pfolder_a );
+		if( (*pfolder_b).empty == 0 )
+			free_sub_folder_list( pfolder_b );
+	}
+	else
+		print_msg( "folders do not have the same root path", "", 2 );
 }
 

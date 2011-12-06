@@ -246,6 +246,16 @@ int check_is_empty( folderst *pfolder )
 		return 0;
 }
 
+void set_root_folder_attributes( folderst *pfolder, char *ppath )
+{
+	/*set foldername*/
+	(*pfolder).foldername = get_root_folder( ppath );
+	/*set folderpath*/
+	(*pfolder).folderpath = ppath;
+	/*set root folder*/
+	(*pfolder).rootpath = get_root_folder( ppath );
+}
+
 void set_folder_attributes( folderst *subfolder, folderst *rootfolder, char *pname, char *ppath )
 {
 	/*set folderlayer*/

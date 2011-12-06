@@ -52,6 +52,8 @@ extern int append_file_to_list( folderst*, filest* );
 extern void print_file_struct( folderst* );
 extern void printf_folder_struct( folderst* );
 extern char *get_root_folder( char* );
+extern void set_folder_attributes( folderst*, folderst* , char* , char* );
+extern void set_file_attributes( filest*, char*, struct stat*, char*, folderst* );
 extern int read_folder( char*, folderst* );
 extern void free_file_list( folderst* );
 extern void free_sub_folder_list( folderst* );

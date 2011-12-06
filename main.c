@@ -6,7 +6,6 @@
 
 /* to do:
  * - free's
- * - check for the same root folder at start
  * - one folder is empty = Speicherzugriffsfehler!
  */
 
@@ -16,36 +15,28 @@
 int main(int argc, char *argv[])
 {
 	/*variables*/
-	//char *patha = argv[1];
-	//char *pathb = argv[2];
-	char *patha = "/home/fabi/temp/folderA";
-	char *pathb = "/home/fabi/temp/subsetB/folderA";
+	char *path_a = argv[1];
+	char *path_b = argv[2];
 
 	/*prepare folder A*/
-	folderst foldera;
-	/*fill pfolder and set attributes*/
-	reset_folder( &foldera );
-	foldera.foldername = get_root_folder( patha );
+	folderst folder_a;
+	/*reset folder and set attributes*/
+	reset_folder( &folder_a );
+	set_root_folder_attributes( &folder_a, path_a );
 
-	foldera.folderpath = patha;
-	foldera.rootpath = get_root_folder( patha );
-	
-	read_folder ( patha, &foldera );
+	read_folder ( path_a, &folder_a );
 	
 	/*prepare folder B*/
-	folderst folderb;
-	/*fill pfolder and set attributes*/
-	reset_folder( &folderb );
-	folderb.foldername = get_root_folder( pathb );
-
-	folderb.folderpath = pathb;
-	folderb.rootpath = get_root_folder( pathb );
+	folderst folder_b;
+	/*reset folder and set attributes*/
+	reset_folder( &folder_b );
+	set_root_folder_attributes( &folder_b, path_b );
 	
-	read_folder ( pathb, &folderb );
+	read_folder ( path_b, &folder_b );
 
 
 	/*compare the folders*/
-	init_compare( &foldera, &folderb);
+	init_compare( &folder_a, &folder_b);
 
 	return 0;
 }
