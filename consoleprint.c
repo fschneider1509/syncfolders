@@ -14,7 +14,7 @@ int ask_user( filest *pfilea, filest *pfileb )
 	int check = 0;
 
 	fprintf( stdout, "file confilict:\n" );
-	fprintf( stdout, "\t(1) %s, %d Bytes, changedate: %s", (*pfilea).filepath, (*pfilea).filesize, (*pfilea).str_changedate );
+	fprintf( stdout, "\t(1) %s, %d Bytes, changedate: %s\n", (*pfilea).filepath, (*pfilea).filesize, (*pfilea).str_changedate );
 	fprintf( stdout, "\t(2) %s, %d Bytes, changedate: %s", (*pfileb).filepath, (*pfileb).filesize, (*pfileb).str_changedate );
 	fprintf( stdout, "\n\n" );
 

@@ -246,6 +246,33 @@ int check_is_empty( folderst *pfolder )
 		return 0;
 }
 
+void set_folder_attributes( folderst *subfolder, folderst *rootfolder, char *pname, char *ppath )
+{
+	/*set folderlayer*/
+	(*subfolder).folderlayer = (*rootfolder).folderlayer + 1;
+	/*set foldername*/
+	(*subfolder).foldername = pname;
+	/*set folderpath*/
+	(*subfolder).folderpath = ppath;
+	/*set rootpath*/
+	(*subfolder).rootpath = build_path( (*rootfolder).rootpath , pname );
+}
+
+void set_file_attributes( filest *pfile, char *pname, struct stat *pfattributes, char *ppath, folderst *rootfolder )
+{
+	/*set filename*/
+	(*pfile).filename = pname;
+	/*get filesize*/
+	(*pfile).filesize = get_file_size( pfattributes );
+	/*get changedate*/
+	(*pfile).changedate = get_change_date( pfattributes );
+	(*pfile).str_changedate = remove_trailing_newline( ctime( &((*pfile).changedate ) ) );
+	/*set filepath*/
+	(*pfile).filepath = ppath;
+	/*set rootpath*/
+	(*pfile).rootpath = build_path( (*rootfolder).rootpath, ppath );
+}
+
 int read_folder( char *ppath, folderst *pfolder )
 {
 	/*variables*/
@@ -264,54 +291,40 @@ int read_folder( char *ppath, folderst *pfolder )
 		while( (dirst = readdir( curdir )) != NULL )
 		{
 			/*build new path*/
-			curfl = build_path ( ppath, dirst->d_name );
+			curfl = build_path ( ppath, (*dirst).d_name );
 
 			/*get attributes of file or folder*/
 			if( stat( curfl, &fileattributes ) == 0 )
 			{
-				switch( check_type( &fileattributes, dirst->d_name ) )
+				switch( check_type( &fileattributes, (*dirst).d_name ) )
 				{
 					case 1:
 					{
 						/*create temp folder struct*/
-						folderst subFl;
-						reset_folder( &subFl );
-						/*set layer*/
-						subFl.folderlayer = pfolder->folderlayer+1;
+						folderst subfl;
+						reset_folder( &subfl );
 
-						/*set folder name*/
-						subFl.foldername = dirst->d_name;
-						/*set folder path*/
-						subFl.folderpath = curfl;
-						/*set folder rootpath*/
-						subFl.rootpath = build_path( pfolder->rootpath, dirst->d_name );
+						/*set folders attributes*/
+						set_folder_attributes( &subfl, pfolder, (*dirst).d_name, curfl );
 
 						/*read content of the subfolder (recursive)*/
-						read_folder ( curfl, &subFl );
+						read_folder ( curfl, &subfl );
 
 						/*add folder to folder list*/
-						append_sub_folder_to_list ( pfolder, &subFl );
+						append_sub_folder_to_list ( pfolder, &subfl );
 						break;
 					}
 					case 2:
 					{
 						/*create temp file struct*/
-						filest tmpFl;
-						reset_file( &tmpFl );
-						/*set filename*/
-						tmpFl.filename = dirst->d_name;
-						/*get filesize*/
-						tmpFl.filesize = get_file_size( &fileattributes );
-						/*get changedate*/
-						tmpFl.changedate = get_change_date( &fileattributes );
-						tmpFl.str_changedate = remove_trailing_newline( ctime( &(tmpFl.changedate) ) );
-						/*set filepath*/
-						tmpFl.filepath = curfl;
-						/*set rootpath*/
-						tmpFl.rootpath = build_path( pfolder->rootpath, dirst->d_name );
+						filest tmpfl;
+						reset_file( &tmpfl );
+
+						/*set file attributes*/
+						set_file_attributes( &tmpfl, (*dirst).d_name, &fileattributes, curfl, pfolder );
 
 						/*add file to file list*/
-						append_file_to_list( pfolder, &tmpFl );						
+						append_file_to_list( pfolder, &tmpfl );						
 						break;
 					}
 					case -1:

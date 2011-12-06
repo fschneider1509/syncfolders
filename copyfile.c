@@ -17,8 +17,30 @@ int set_physical_change_date( time_t *pdate, filest *pfile )
 	}
 	/*set changedate in struct*/
 	(*pfile).changedate = *pdate;
+	(*pfile).str_changedate = ctime( pdate );
 
 	return 0;
+}
+
+void  set_file_size( unsigned int psize, filest *pfile )
+{
+	(*pfile).filesize = psize;
+}
+
+int create_shadow_file( char *pfilepath )
+{
+	/*variables*/
+	FILE *tmp;
+
+	tmp = fopen( pfilepath, "w+" );
+
+	if( tmp != NULL )
+	{
+		fclose( tmp );
+		return 1;
+	}
+	else
+		return -1;
 }
 
 int copy_content( FILE *src, FILE *dest )
@@ -66,7 +88,9 @@ int copy_file_on_disk( filest *srcfile, filest *destfile )
 				if( copy_content( src, dest ) == 1 )
 				{
 					/*set the changedate to changedate of srcfile*/
-					set_physical_change_date( &((*srcfile).changedate), destfile );					
+					set_physical_change_date( &((*srcfile).changedate), destfile );
+					/*set the filesize to the size of srcfile*/
+					set_file_size( (*srcfile).filesize, destfile );
 					return 1;
 				}
 				else
@@ -83,4 +107,13 @@ int copy_file_on_disk( filest *srcfile, filest *destfile )
 		print_msg( "filde could not be deleted", (*destfile).filepath, 2 );
 		
 	return -1;
+}
+
+void start_copy( filest *pfilea, filest *pfileb )
+{
+	print_copy_activity( pfilea, pfileb );
+	if( copy_file_on_disk( pfilea, pfileb ) == 1 )
+		print_ok();
+	else
+		print_fail();
 }
