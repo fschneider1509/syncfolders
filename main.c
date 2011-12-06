@@ -6,8 +6,11 @@
 #include "consoleprint.h"
 
 /* to do:
- * - free's
- * - one folder is empty = Speicherzugriffsfehler!
+ * - free() after malloc() with memcpy() in comparefolders.c
+ * - search for malloc() without free()
+ * - check and remove trailing slashes in filepath's
+ * - replace more '=' by memcpy()
+ * - start writing the gui  
  */
 
 /*functions*/
