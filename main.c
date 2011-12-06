@@ -24,7 +24,6 @@ int main(int argc, char *argv[])
 		reset_folder( &folder_a );
 		set_root_folder_attributes( &folder_a, argv[1] );
 
-		fprintf( stdout, "read folder %s\n", argv[1] );
 		read_folder ( argv[1], &folder_a );
 
 		/*prepare folder B*/
@@ -33,7 +32,6 @@ int main(int argc, char *argv[])
 		reset_folder( &folder_b );
 		set_root_folder_attributes( &folder_b, argv[2] );
 
-		fprintf( stdout, "read folder%s\n", argv[2] );
 		read_folder ( argv[2], &folder_b );
 
 	
