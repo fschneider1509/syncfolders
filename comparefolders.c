@@ -177,15 +177,23 @@ void init_compare( folderst *pfolder_a, folderst *pfolder_b )
 	if( check_root_folders( (*pfolder_a).folderpath, (*pfolder_b).folderpath ) == 1 )
 	{
 		/*pfoldera is leading*/
+		fprintf( stdout, "folder_a leading\n" );
 		compare_folders( pfolder_a, pfolder_b );
 		/*pfolderb is leading*/
+		fprintf( stdout, "folder_b leading\n" );
 		compare_folders( pfolder_b, pfolder_a );
 
 		/*free memory*/
 		if( (*pfolder_a).empty == 0 )
+		{
+			fprintf( stdout, "free folder_a...\n" );
 			free_sub_folder_list( pfolder_a );
+		}
 		if( (*pfolder_b).empty == 0 )
+		{
+			fprintf( stdout, "free folder_b...\n" );
 			free_sub_folder_list( pfolder_b );
+		}
 	}
 	else
 		print_msg( "folders do not have the same root path", "", 2 );

@@ -70,3 +70,11 @@ void print_msg( char *pmsg, char *pparam, int ptype )
 			break;
 	}
 }
+
+void print_usage( void )
+{
+	fprintf( stderr, "wrong number of parameters\n" );
+	fprintf( stderr, "usage: \n" );
+	fprintf( stderr, "\tsyncfolders </path/to/folder/a> </path/to/folder/b>\n" );
+
+}
