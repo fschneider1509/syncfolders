@@ -7,8 +7,6 @@
 
 /* to do:
  * - free() after malloc() with memcpy() in comparefolders.c
- * - check success of malloc() with if(...)
- * - search for malloc() without free()
  * - check and remove trailing slashes in filepath's
  * - replace more '=' by memcpy()
  * - start writing the gui  
@@ -38,7 +36,6 @@ int main(int argc, char *argv[])
 
 		read_folder ( argv[2], &folder_b );
 
-	
 		/*compare the folders*/
 		init_compare( &folder_a, &folder_b);
 

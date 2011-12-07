@@ -109,10 +109,10 @@ int copy_file_on_disk( filest *srcfile, filest *destfile )
 	return -1;
 }
 
-void start_copy( filest *pfilea, filest *pfileb )
+void start_copy( filest *pfile_a, filest *pfile_b )
 {
-	print_copy_activity( pfilea, pfileb );
-	if( copy_file_on_disk( pfilea, pfileb ) == 1 )
+	print_copy_activity( pfile_a, pfile_b );
+	if( copy_file_on_disk( pfile_a, pfile_b ) == 1 )
 		print_ok();
 	else
 		print_fail();
