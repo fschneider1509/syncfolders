@@ -2,6 +2,7 @@
 #define COMPAREFOLDERS_H
 
 /*includes*/
+#include <string.h>
 #include "readfolder.h"
 #include "consoleprint.h"
 #include "copyfile.h"

@@ -6,9 +6,7 @@
 #include "consoleprint.h"
 
 /* to do:
- * - free() after malloc() with memcpy() in comparefolders.c
  * - check and remove trailing slashes in filepath's
- * - replace more '=' by memcpy()
  * - start writing the gui  
  */
 
@@ -17,7 +15,7 @@
 /*main*/
 int main(int argc, char *argv[])
 {
-	
+	/*check number of arguments*/
 	if( argc == 3 )
 	{
 		/*prepare folder A*/
@@ -26,6 +24,7 @@ int main(int argc, char *argv[])
 		reset_folder( &folder_a );
 		set_root_folder_attributes( &folder_a, argv[1] );
 
+		/*read folder a*/
 		read_folder ( argv[1], &folder_a );
 
 		/*prepare folder B*/
@@ -34,6 +33,7 @@ int main(int argc, char *argv[])
 		reset_folder( &folder_b );
 		set_root_folder_attributes( &folder_b, argv[2] );
 
+		/*read folder b*/
 		read_folder ( argv[2], &folder_b );
 
 		/*compare the folders*/
@@ -43,5 +43,4 @@ int main(int argc, char *argv[])
 	}
 	else
 		print_usage();
-
 }

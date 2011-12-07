@@ -5,6 +5,10 @@ int find_folder_in_list( folderst *pdestfolder, folderst *psearchfolder )
 {
 	/*variables*/
 	unsigned int i = 0;
+	int comp_a = 0;
+	int comp_b = 0;
+
+
 
 	for( i = 0; i < (*psearchfolder).numfolders; i++ )
 	{
@@ -13,12 +17,16 @@ int find_folder_in_list( folderst *pdestfolder, folderst *psearchfolder )
 		 * - folderlayer
 		 * - rootpath
 		 */
-		if( strcmp( (*pdestfolder).foldername, (*psearchfolder).folderlist[i].foldername ) == 0 &&
-			(*pdestfolder).folderlayer == (*psearchfolder).folderlist[i].folderlayer &&
-			strcmp( (*pdestfolder).rootpath, (*psearchfolder).folderlist[i].rootpath ) == 0	)
+
+		/*check if the strings are equal*/
+		comp_a = strcmp( (*pdestfolder).foldername, (*psearchfolder).folderlist[i].foldername );
+		comp_b = strcmp( (*pdestfolder).rootpath, (*psearchfolder).folderlist[i].rootpath );
+
+
+		if( comp_a == 0 && comp_b == 0	)
+		{
 			return i;
-		else
-			return -1;
+		}
 	}
 
 	return -1;
@@ -80,7 +88,7 @@ int copy_pathes( folderst *pfolder, char *ppath, char *proot )
 		return 1;
 	}
 	else
-		return 1;
+		return -1;
 }
 
 void compare_folders( folderst *pfolder_a, folderst *pfolder_b )
@@ -188,6 +196,8 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b )
 				(*tmpfolder).folderpath = build_path( (*pfolder_b).folderpath, (*pfolder_a).folderlist[j].foldername );
 				/*set folder and rootpath*/
 				copy_pathes( tmpfolder, (*pfolder_a).folderlist[j].foldername, (*pfolder_a).folderlist[j].rootpath );
+				/*set layer*/
+				(*tmpfolder).folderlayer = (*pfolder_a).folderlist[j].folderlayer;
 
 				if( append_sub_folder_to_list( pfolder_b, tmpfolder ) == 1 )
 				{
