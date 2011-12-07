@@ -7,6 +7,7 @@
 
 /* to do:
  * - free() after malloc() with memcpy() in comparefolders.c
+ * - check success of malloc() with if(...)
  * - search for malloc() without free()
  * - check and remove trailing slashes in filepath's
  * - replace more '=' by memcpy()
