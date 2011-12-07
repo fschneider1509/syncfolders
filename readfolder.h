@@ -57,5 +57,6 @@ extern void set_file_attributes( filest*, char*, struct stat*, char*, folderst* 
 extern int read_folder( char*, folderst* );
 extern void free_file_list( folderst* );
 extern void free_sub_folder_list( folderst* );
+extern char *remove_trailing_slash( char* );
 
 #endif /*READFOLDER_H*/

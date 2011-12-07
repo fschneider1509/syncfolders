@@ -360,3 +360,40 @@ int read_folder( char *ppath, folderst *pfolder )
 		return -1;
 	}		
 }
+
+char *remove_trailing_slash( char *ppath )
+{
+	/*variables*/
+	char *tmp;
+	char *new;
+	unsigned int i = 0;
+	size_t pathlen;
+
+	/*get path length*/
+	pathlen = strlen( ppath );
+
+	if( ppath[pathlen-1] == '/' )
+	{
+		/*allocate memory for the new string;
+		 * don't need to add + 1, because one slot is free*/
+		new = malloc( sizeof(char) * pathlen );
+
+		/*save new pointer*/
+		tmp = new;
+
+		if( new != NULL )
+		{
+			do
+			{
+				*new++ = *ppath++;
+				i++;
+			}while( i < (pathlen - 1) );
+			*new++ = '\0';
+			return tmp;
+		}
+		else
+			return NULL;
+	}
+	else
+		return ppath;
+}
