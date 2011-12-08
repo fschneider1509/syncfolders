@@ -36,11 +36,16 @@ int find_file_in_list( filest *pfile, folderst *pfolder )
 {
 	/*variables*/
 	unsigned int i = 0;
+	int comp = 0;
 
 	for( i = 0; i < (*pfolder).numfiles; i++ )
 	{
-		if( strcmp( (*pfile).filename, (*pfolder).filelist[i].filename ) == 0 )
+		/*check if strings are euqal*/
+		comp = strcmp( (*pfile).filename, (*pfolder).filelist[i].filename );
+		if( comp == 0 )
+		{
 			return i;
+		}
 	}
 
 	return -1;
