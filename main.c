@@ -3,234 +3,77 @@
 #include <stdlib.h>
 #include "readfolder.h"
 #include "comparefolders.h"
-#include "copyfile.h"
 #include "consoleprint.h"
+#include <gtk/gtk.h>
+
+/* to do:
+ * - add menu bar
+ */
 
 /*functions*/
+/*main_window*/
+void set_main_win_attribs( GtkWidget *pwindow, gchar *ptitle )
+{
+	/*set attributes of the main-window*/
+	gtk_window_set_title (GTK_WINDOW (pwindow), ptitle );
+	gtk_container_set_border_width (GTK_CONTAINER (pwindow), 15);
+	gtk_window_set_resizable( GTK_WINDOW(pwindow), TRUE );
+	gtk_window_set_default_size( GTK_WINDOW(pwindow), 750, 550 );
+	gtk_window_set_position( GTK_WINDOW(pwindow), GTK_WIN_POS_CENTER );
+}
 
-/*comparefolders*/
-int find_folder_in_list( folderst *pdestfolder, folderst *psearchfolder )
+int main (int argc, char *argv[])
 {
 	/*variables*/
-	int i = 0;
+	GtkWidget *main_win;
+	GtkWidget *main_menu_box; /*container box, holds elements*/
+	GtkWidget *main_menubar; /*menu bar*/
+	GtkWidget *main_menubar_file; /*file menu*/
+	GtkWidget *main_menubar_sync; /*sync menu*/
+	GtkWidget *main_menubar_about; /*about menu*/
+	GtkWidget *main_file_open; /*menu entry for file open*/
+	GtkWidget *main_file_exit; /*menu entry for exit application*/
+	GtkWidget *main_sync_sync; /*menu entry for sync folders*/
 
-	for( i = 0; i < (*psearchfolder).numfolders; i++ )
-	{
-		/*compare:
-		 * - foldername
-		 * - folderlayer
-		 * - rootpath
-		 */
-		if( strcmp( (*pdestfolder).foldername, (*psearchfolder).folderlist[i].foldername ) == 0 &&
-			(*pdestfolder).folderlayer == (*psearchfolder).folderlist[i].folderlayer &&
-			strcmp( (*pdestfolder).rootpath, (*psearchfolder).folderlist[i] ) == 0	)
-			return i;
-		else
-			return -1;
-	}
 
-	return -1;
-}
+	gtk_init (&argc, &argv);
 
-int find_file_in_list( filest *pfile, folderst *pfolder )
-{
-	/*variables*/
-	unsigned int i = 0;
+	/*initialize main window*/
+	main_win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	/*initialize menu containerbox*/
+	main_menu_box = gtk_vbox_new( FALSE, 0 );
+	/*initialize menubar*/
+	main_menubar = gtk_menu_bar_new();
+	/*initialize menus*/
+	main_menubar_file = gtk_menu_new();
+	main_menubar_sync = gtk_menu_new();
+	main_menubar_about = gtk_menu_new();
 
-	for( i = 0; i < (*pfolder).numfiles; i++ )
-	{
-		if( strcmp( (*pfile).filename, (*pfolder).filelist[i].filename ) == 0 )
-			return i;
-	}
+	/*set menu labels*/
+	main_file_open = gtk_menu_item_new_with_label( "Open" );
+	main_file_exit = gtk_menu_item_new_with_label( "Exit" );
+	main_sync_sync = gtk_menu_item_new_with_label( "Sync" );
 
-	return -1;
-}
+	/*add box*/
+	gtk_container_add( GTK_CONTAINER(main_win), main_menu_box );
 
-int compare_files( filest *pfile_one, filest *pfile_two )
-{
-	/* return codes:
-	 * 0: files are equal
-	 * 1: copy fileA to fileB
-	 * 2: copy fileB to fileA
-	 * 3: ask user
-	 */
-	if( (*pfile_one).filesize == (*pfile_two).filesize &&
-	    (*pfile_one).changedate == (*pfile_two).changedate )
-			return 0;
-	else if( (*pfile_one).filesize > (*pfile_two).filesize &&
-	         (*pfile_one).changedate > (*pfile_two).changedate )
-			return 1;
-	else if( (*pfile_one).filesize < (*pfile_two).filesize &&
-	         (*pfile_one).changedate < (*pfile_two).changedate )
-			return 2;
-	else 
-		return 3;
-}
+	/*add menus*/
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(main_file_open), main_menubar_file );
+	gtk_menu_shell_append(GTK_MENU_SHELL(main_menubar_file), main_file_exit );
 
-void start_copy( filest *pfilea, filest *pfileb )
-{
-	print_copy_activity( pfilea, pfileb );
-	if( copy_file_on_disk( pfilea, pfileb ) == 1 )
-		print_ok();
-	else
-		print_fail();
-}
+	/*pack menu*/
+	gtk_box_pack_start( GTK_BOX(main_menu_box), main_menubar, FALSE, FALSE, 3 );
 
-int create_shadow_file( char *pfilepath )
-{
-	/*variables*/
-	FILE *tmp;
 
-	tmp = fopen( pfilepath, "w+" );
+	/*set properties*/
+	set_main_win_attribs( main_win, "syncfolders-gtk" );
 
-	if( tmp != NULL )
-	{
-		fclose( tmp );
-		return 1;
-	}
-	else
-		return -1;
-}
+	g_signal_connect (main_win, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
-void compare_folders( folderst *pfoldera, folderst *pfolderb )
-{
-	/*pfoldera is the leading folder*/
-	
-	/*variables*/
-	unsigned int i = 0;
-	unsigned int j = 0;
-	int iposfile = 0;
-	int iposfolder = 0;
-	filest tmpfile;
-	
-	/*first the files*/
-	for( i = 0; i < (*pfoldera).numfiles; i++ )
-	{
-		iposfile = find_file_in_list( &((*pfoldera).filelist[i]), pfolderb );
-		if( iposfile > -1 )
-		{
-			switch( compare_files( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) ) )
-			{
-				case 0:
-					/*do nothing*/
-					break;
-				case 1:
-					start_copy( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) );
-					break;
-				case 2:
-					start_copy( &((*pfolderb).filelist[iposfile]), &((*pfoldera).filelist[i]) );
-					break;
-				case 3:
-					/*ask user*/
-					{
-						switch( ask_user( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) ) )
-						{
-						case 1:
-							start_copy( &((*pfoldera).filelist[i]), &((*pfolderb).filelist[iposfile]) );
-							break;
-						case 2:
-							start_copy( &((*pfolderb).filelist[iposfile]), &((*pfoldera).filelist[i]) );
-							break;
-						default:
-							/*do nothing*/
-							break;
-						}
-					}
-					break;
-			}
-		}
-		else
-		{
-			/*file was not found;
-			 *copy file from foldera to folderb;
-			 * -> create new file and append it to the file list
-			 *    of the current folder
-			 */
+	gtk_widget_show_all (main_win);
 
-			/*make a copy of the current file form foldera*/
-			tmpfile = (*pfoldera).filelist[i];
+	gtk_main ();
 
-			/*create new filepath*/
-			tmpfile.filepath = build_path( (*pfolderb).folderpath, (*pfoldera).filelist[i].filename );
-
-			/*append file to list*/
-			if( append_file_to_list( pfolderb, &tmpfile ) == 1 )
-			{
-				/*create shadowfile*/
-				if( create_shadow_file( tmpfile.filepath ) == 1 )
-					/*copy file on disk*/
-					start_copy( &((*pfoldera).filelist[i]), &tmpfile );
-				else
-					print_msg( "file could not be copied", (*pfoldera).filelist[i].filepath, 2 );
-			}
-		}
-	}
-
-	/*copy folders*/
-	for( j = 0; j < (*pfoldera).numfolders; j++ )
-	{
-		/*search for current folder in list of folderb*/
-		iposfolder = find_folder_in_list( &((*pfoldera).folderlist[i]), pfolderb );
-
-		if( iposfolder != -1 )
-		{
-			/*sync file lists*/
-		}
-		else
-		{
-			/*copy folder*/
-		}
-
-	}
-}
-
-/*main*/
-int main(int argc, char *argv[])
-{
-	/*variables*/
-	//char *patha = argv[1];
-	//char *pathb = argv[2];
-	char *patha = "/home/temp/folderA";
-	char *pathb = "/home/fabi/temp/subsetB/folderA";
-
-	/*prepare folder A*/
-	folderst foldera;
-	/*fill pfolder and set attributes*/
-	reset_folder( &foldera );
-	foldera.foldername = get_root_folder( patha );
-
-	foldera.folderpath = patha;
-	foldera.rootpath = get_root_folder( patha );
-	
-	read_folder ( patha, &foldera );
-	/*fprintf( stdout, "content folder %s\n", foldera.folderpath );
-	print_file_struct( &foldera );
-	printf("folders:\n");
-	printf_folder_struct( &foldera );
-
-	fprintf( stdout, "\n\n\n" );*/
-	
-	/*prepare folder B*/
-	folderst folderb;
-	/*fill pfolder and set attributes*/
-	reset_folder( &folderb );
-	folderb.foldername = get_root_folder( pathb );
-
-	folderb.folderpath = pathb;
-	folderb.rootpath = get_root_folder( pathb );
-	
-	read_folder ( pathb, &folderb );
-	/*fprintf( stdout ,"content folder %s\n", folderb.folderpath );
-	print_file_struct( &folderb );
-	printf("folders:\n");
-	printf_folder_struct( &folderb );*/
-
-	/*compare the folders*/
-	compare_folders( &foldera, &folderb );
-
-	/*free memory*/
-	free_sub_folder_list( &foldera );
-	free_sub_folder_list( &folderb );
-	
 	return 0;
 }
+
