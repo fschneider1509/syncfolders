@@ -6,7 +6,8 @@
 #include "consoleprint.h"
 
 /* to do:
- * - check and remove trailing slashes in filepath's
+ * - write makefile for commandlineversion
+ * - pack version to *.tar.gz
  * - start writing the gui  
  */
 
