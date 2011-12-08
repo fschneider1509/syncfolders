@@ -16,7 +16,7 @@ void set_main_win_attribs( GtkWidget *pwindow, gchar *ptitle )
 {
 	/*set attributes of the main-window*/
 	gtk_window_set_title (GTK_WINDOW (pwindow), ptitle );
-	gtk_container_set_border_width (GTK_CONTAINER (pwindow), 10);
+	gtk_container_set_border_width (GTK_CONTAINER (pwindow), 15);
 	gtk_window_set_resizable( GTK_WINDOW(pwindow), TRUE );
 	gtk_window_set_default_size( GTK_WINDOW(pwindow), 750, 550 );
 	gtk_window_set_position( GTK_WINDOW(pwindow), GTK_WIN_POS_CENTER );
@@ -26,12 +26,45 @@ int main (int argc, char *argv[])
 {
 	/*variables*/
 	GtkWidget *main_win;
+	GtkWidget *main_menu_box; /*container box, holds elements*/
+	GtkWidget *main_menubar; /*menu bar*/
+	GtkWidget *main_menubar_file; /*file menu*/
+	GtkWidget *main_menubar_sync; /*sync menu*/
+	GtkWidget *main_menubar_about; /*about menu*/
+	GtkWidget *main_file_open; /*menu entry for file open*/
+	GtkWidget *main_file_exit; /*menu entry for exit application*/
+	GtkWidget *main_sync_sync; /*menu entry for sync folders*/
 
 
 	gtk_init (&argc, &argv);
 
 	/*initialize main window*/
 	main_win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	/*initialize menu containerbox*/
+	main_menu_box = gtk_vbox_new( FALSE, 0 );
+	/*initialize menubar*/
+	main_menubar = gtk_menu_bar_new();
+	/*initialize menus*/
+	main_menubar_file = gtk_menu_new();
+	main_menubar_sync = gtk_menu_new();
+	main_menubar_about = gtk_menu_new();
+
+	/*set menu labels*/
+	main_file_open = gtk_menu_item_new_with_label( "Open" );
+	main_file_exit = gtk_menu_item_new_with_label( "Exit" );
+	main_sync_sync = gtk_menu_item_new_with_label( "Sync" );
+
+	/*add menus*/
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(main_menubar), main_menubar_file );
+	gtk_menu_shell_append(GTK_MENU_SHELL(main_menubar_file), main_file_open );
+
+	/*add box*/
+	gtk_container_add( GTK_CONTAINER(main_win), main_menu_box );
+
+	/*pack menu*/
+	gtk_box_pack_start( GTK_BOX(main_menu_box), main_menubar, FALSE, FALSE, 3 );
+
+
 	/*set properties*/
 	set_main_win_attribs( main_win, "syncfolders-gtk" );
 
