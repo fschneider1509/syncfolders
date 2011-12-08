@@ -7,9 +7,7 @@
 #include <gtk/gtk.h>
 
 /* to do:
- * - write makefile for commandlineversion
- * - pack version to *.tar.gzC
- * - start writing the gui  
+ * - add menu bar
  */
 
 /*functions*/
