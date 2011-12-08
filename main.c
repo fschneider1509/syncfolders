@@ -7,7 +7,7 @@
 
 /* to do:
  * - write makefile for commandlineversion
- * - pack version to *.tar.gz
+ * - pack version to *.tar.gzC
  * - start writing the gui  
  */
 
