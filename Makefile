@@ -1,7 +1,7 @@
 all: readfolder consoleprint copyfile copyfolder comparefolders syncfolders clean
 
 syncfolders: main.c
-	gcc -W -g main.c readfolder.o consoleprint.o copyfile.o copyfolder.o comparefolders.o -o syncfolders_cmd
+	gcc -W -g main.c readfolder.o consoleprint.o copyfile.o copyfolder.o comparefolders.o -o syncfolders-gtk `pkg-config --libs --cflags gtk+-2.0`
 
 readfolder: readfolder.c
 	gcc -W -g readfolder.c -c
