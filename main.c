@@ -20,6 +20,7 @@ void add_menubar( GtkWidget *pwindow )
 	GtkWidget *menubar; /*menu bar*/
 	GtkWidget *file_menu; /*file menu*/
 	GtkWidget *file_top; /*top entry*/
+	GtkWidget *file_separator;
 	GtkWidget *open_entry; /*menu entry for file open*/
 	GtkWidget *exit_entry; /*menu entry for exit application*/
 
@@ -34,16 +35,23 @@ void add_menubar( GtkWidget *pwindow )
 	file_menu = gtk_menu_new();
 
 	/*set menu labels*/
-	file_top = gtk_menu_item_new_with_label( "File" );
-	//open_entry = gtk_menu_item_new_with_label( "Open" );
+	file_top = gtk_check_menu_item_new_with_mnemonic( "_Datei" );
 	open_entry = gtk_image_menu_item_new_from_stock( GTK_STOCK_OPEN, NULL );
 	exit_entry = gtk_image_menu_item_new_from_stock( GTK_STOCK_QUIT, NULL );
+	/*initialize separator*/
+	file_separator = gtk_separator_menu_item_new();
 
 	/*add menus*/
 	gtk_menu_item_set_submenu( GTK_MENU_ITEM(file_top), file_menu );
 	gtk_menu_shell_append( GTK_MENU_SHELL(file_menu), open_entry );
+	gtk_menu_shell_append( GTK_MENU_SHELL(file_menu), file_separator );
 	gtk_menu_shell_append( GTK_MENU_SHELL(file_menu), exit_entry );
 	gtk_menu_shell_append( GTK_MENU_SHELL(menubar), file_top );
+
+
+	/*add bindings to the menu entries*/
+	 g_signal_connect( G_OBJECT(exit_entry), "activate", G_CALLBACK(gtk_main_quit), NULL );
+
 
 	/*pack menu*/
 	gtk_box_pack_start( GTK_BOX(menu_box), menubar, FALSE, FALSE, 0 );
