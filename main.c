@@ -13,6 +13,9 @@
 /*functions*/
 /*main_window*/
 
+#define WIDTH 750
+#define HEIGHT 550
+
 void add_menubar_to_main_win( GtkWidget *playout )
 {
 	/*variables*/
@@ -74,7 +77,7 @@ void set_main_win_attributes( GtkWidget *pwindow, gchar *ptitle )
 	gtk_window_set_title (GTK_WINDOW (pwindow), ptitle );
 	gtk_container_set_border_width (GTK_CONTAINER (pwindow), 0);
 	gtk_window_set_resizable( GTK_WINDOW(pwindow), TRUE );
-	gtk_window_set_default_size( GTK_WINDOW(pwindow), 750, 550 );
+	gtk_window_set_default_size( GTK_WINDOW(pwindow), WIDTH, HEIGHT );
 	gtk_window_set_position( GTK_WINDOW(pwindow), GTK_WIN_POS_CENTER );
 }
 
@@ -123,13 +126,14 @@ void add_folder_to_treeview( folderst *pfolder, GtkTreeStore *pstore, GtkTreeIte
 	/*get default gtk theme*/
 	curtheme = gtk_icon_theme_get_default();
 
-	/*load file icon*/
-	treeicon = gtk_icon_theme_load_icon( curtheme, "document", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
-
 	gtk_tree_store_append( pstore, &additer, pparent );
 
+	/*load file icon*/
+	treeicon = gtk_icon_theme_load_icon( curtheme, "document", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
+	/*append files to treeview*/
 	append_files_to_treeview( pstore, &additer, pparent,(*pfolder).filelist, (*pfolder).numfiles, treeicon );
 
+	/*load folder icon*/
 	treeicon = gtk_icon_theme_load_icon( curtheme, "folder", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
 
 	for( i = 0; i < (*pfolder).numfolders; i++ )
@@ -142,15 +146,16 @@ void add_folder_to_treeview( folderst *pfolder, GtkTreeStore *pstore, GtkTreeIte
 							CHDATE_COLUMN, "-",
 							EQUAL_COLUMN, "1", -1 );
 
-		/*append files to folder*/
+		/*append folders (recursively)*/
 		add_folder_to_treeview( &((*pfolder).folderlist[i]), pstore, &additer );
 
 		if( i < (*pfolder).numfolders -1 )
 			gtk_tree_store_append( pstore, &additer, pparent );
+
 	}
 }
 
-void add_treeview( GtkWidget *playout, GtkWidget **ptview, char ppos )
+GtkTreeStore *add_treeview( GtkWidget *playout, GtkWidget **ptview )
 {
 	/*variables*/
 	GtkTreeStore *filetree;
@@ -160,15 +165,14 @@ void add_treeview( GtkWidget *playout, GtkWidget **ptview, char ppos )
 	GtkTreeViewColumn *sizecolumn;
 	GtkTreeViewColumn *chdatecolumn;
 	GtkTreeViewColumn *equalcolumn;
-	folderst folder_a;
+	GtkWidget *scrollarea;
 
-	reset_folder( &folder_a );
-	set_root_folder_attributes( &folder_a, "/home/fabi/temp/folderA" );
-	read_folder( "/home/fabi/temp/folderA", &folder_a );
+
+	/*add scrollarea for scrolling in the treewidget*/
+	scrollarea = gtk_scrolled_window_new( NULL, NULL );
+	gtk_widget_set_size_request( GTK_WIDGET(scrollarea), 380, 350 );
 
 	filetree = gtk_tree_store_new( N_COLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING );
-
-	add_folder_to_treeview( &folder_a, filetree, NULL );
 
 	*ptview = gtk_tree_view_new_with_model( GTK_TREE_MODEL(filetree) );
 
@@ -182,7 +186,7 @@ void add_treeview( GtkWidget *playout, GtkWidget **ptview, char ppos )
 	gtk_tree_view_column_pack_start( namecolumn, treerenderer, TRUE );
 	gtk_tree_view_column_set_attributes( namecolumn, treerenderer, "text", NAME_COLUMN, NULL );
 
-	sizecolumn = gtk_tree_view_column_new_with_attributes( "Size", treerenderer, "text", FSIZE_COLUMN, NULL );
+	sizecolumn = gtk_tree_view_column_new_with_attributes( "Bytes", treerenderer, "text", FSIZE_COLUMN, NULL );
 	chdatecolumn = gtk_tree_view_column_new_with_attributes( "Changedate", treerenderer, "text", CHDATE_COLUMN, NULL );
 	equalcolumn = gtk_tree_view_column_new_with_attributes( "Equal?", treerenderer, "text", EQUAL_COLUMN, NULL );
 
@@ -192,7 +196,11 @@ void add_treeview( GtkWidget *playout, GtkWidget **ptview, char ppos )
 	gtk_tree_view_append_column( GTK_TREE_VIEW(*ptview), chdatecolumn );
 	gtk_tree_view_append_column( GTK_TREE_VIEW(*ptview), equalcolumn );
 
-	gtk_box_pack_start( GTK_BOX(playout), *ptview, FALSE, FALSE, 0 );
+
+	gtk_container_add( GTK_CONTAINER(scrollarea), *ptview );
+	gtk_box_pack_start( GTK_BOX(playout), scrollarea, FALSE, FALSE, 3 );
+
+	return filetree;
 }
 
 
@@ -201,26 +209,52 @@ void start_gtk_gui( void )
 {
 	/*variables*/
 	GtkWidget *main_win;
-	GtkWidget *main_layout;
+	GtkWidget *menubar_layout;
+	GtkWidget *tree_layout;
 	GtkWidget *main_tree_a;
+	GtkWidget *main_tree_b;
+	GtkTreeStore *viewright;
+	GtkTreeStore *viewleft;
+
+	folderst folder_a;
+	folderst folder_b;
 
 	/*initialize main window*/
 	main_win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	/*initialize layout*/
-	main_layout = gtk_vbox_new( FALSE, 0 );
+	menubar_layout = gtk_vbox_new( FALSE, 0 );
+	tree_layout = gtk_hbox_new( TRUE, 4 );
 
 
 	/*add layout to main window*/
-	gtk_container_add( GTK_CONTAINER(main_win), main_layout );
+	gtk_container_add( GTK_CONTAINER(main_win), menubar_layout );
+
 
 	/*set properties*/
 	set_main_win_attributes( main_win, "syncfolders-gtk" );
 
 	/*add menubar*/
-	add_menubar_to_main_win( main_layout );
+	add_menubar_to_main_win( menubar_layout );
 
-	/*add treeview*/
-	add_treeview( main_layout, &main_tree_a, 'l' );
+	gtk_box_pack_start( GTK_BOX(menubar_layout), tree_layout, FALSE, FALSE, 3 );
+
+	/*read folder a*/
+	reset_folder( &folder_a );
+	set_root_folder_attributes( &folder_a, "/home/fabi/temp/folderA" );
+	read_folder( "/home/fabi/temp/folderA", &folder_a );
+
+	/*read folder b*/
+	reset_folder( &folder_b );
+	set_root_folder_attributes( &folder_b, "/home/fabi/temp/subsetB/folderA" );
+	read_folder( "/home/fabi/temp/subsetB/folderA", &folder_b );
+
+	/*add treeview and get back the tree store*/
+	viewright = add_treeview( tree_layout, &main_tree_a );
+	viewleft = add_treeview( tree_layout, &main_tree_b );
+
+	/*add folders to treeviews*/
+	add_folder_to_treeview( &folder_a, viewright, NULL );
+	add_folder_to_treeview( &folder_b, viewleft, NULL );
 
 	g_signal_connect (main_win, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 

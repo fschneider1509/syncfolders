@@ -209,33 +209,33 @@ void free_sub_folder_list( folderst *pfolder )
 	}
 }
 
-void print_file_struct( folderst *pfolder )
+/*void print_file_struct( folderst *pfolder )
 {
-	/*variables*/
+	variables
 	unsigned int i;
 
 	for( i = 0; i < (*pfolder).numfiles; i++ )
 	{
 		fprintf( stdout, "\t\t\t%s\t%d Bytes\n", (*pfolder).filelist[i].filename, (*pfolder).filelist[i].filesize );
 	}
-}
+}*/
 
-void printf_folder_struct( folderst *pfolder )
+/*void printf_folder_struct( folderst *pfolder )
 {
-	/*variables*/
+	variables
 	unsigned int i;
 
 	for( i = 0; i < (*pfolder).numfolders; i++ )
 	{
-		/*print folder path*/
+		print folder path
 		fprintf( stdout, "\n\t%s\n", (*pfolder).folderlist[i].folderpath );
 		fprintf( stdout, "\t\tfiles:\n" );
-		/*print file list of the current folder*/
+		print file list of the current folder
 		print_file_struct( &((*pfolder).folderlist[i]) );
-		/*do it recursively for all subfolders*/
+		do it recursively for all subfolders
 		printf_folder_struct( &((*pfolder).folderlist[i]) );
 	}
-}
+}*/
 
 int check_is_empty( folderst *pfolder )
 {

@@ -49,8 +49,8 @@ extern unsigned int get_file_size( struct stat* );
 extern size_t get_change_date( struct stat* );
 extern int append_sub_folder_to_list( folderst*, folderst* );
 extern int append_file_to_list( folderst*, filest* );
-extern void print_file_struct( folderst* );
-extern void printf_folder_struct( folderst* );
+/*extern void print_file_struct( folderst* );
+extern void printf_folder_struct( folderst* );*/
 extern char *get_root_folder( char* );
 extern void set_folder_attributes( folderst*, folderst* , char* , char* );
 extern void set_file_attributes( filest*, char*, struct stat*, char*, folderst* );
