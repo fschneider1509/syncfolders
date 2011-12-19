@@ -13,7 +13,7 @@
 /*functions*/
 /*main_window*/
 
-#define WIDTH 750
+#define WIDTH 850
 #define HEIGHT 550
 
 void add_menubar_to_main_win( GtkWidget *playout )
@@ -170,7 +170,7 @@ GtkTreeStore *add_treeview( GtkWidget *playout, GtkWidget **ptview )
 
 	/*add scrollarea for scrolling in the treewidget*/
 	scrollarea = gtk_scrolled_window_new( NULL, NULL );
-	gtk_widget_set_size_request( GTK_WIDGET(scrollarea), 380, 350 );
+	gtk_widget_set_size_request( GTK_WIDGET(scrollarea), 440, 350 );
 
 	filetree = gtk_tree_store_new( N_COLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING );
 
@@ -198,12 +198,48 @@ GtkTreeStore *add_treeview( GtkWidget *playout, GtkWidget **ptview )
 
 
 	gtk_container_add( GTK_CONTAINER(scrollarea), *ptview );
-	gtk_box_pack_start( GTK_BOX(playout), scrollarea, FALSE, FALSE, 3 );
+	gtk_box_pack_start( GTK_BOX(playout), scrollarea, TRUE, TRUE, 4 );
 
 	return filetree;
 }
 
+/*struct for button_data*/
+typedef struct btn
+{
+	GtkWidget *parent;
+	GtkTreeStore *tree;
+} btn_data;
 
+void button_a_clicked( GtkButton *pbtn, gpointer data )
+{
+	/*variables*/
+	GtkWidget *fileopen;
+	char *folder_path;
+	folderst folder_a;
+	btn_data *tmp = (btn_data*) data;
+
+	/*create fileopen dialog*/
+	fileopen = gtk_file_chooser_dialog_new( "Verzeichnis öffnen", NULL, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, NULL );
+
+	if( gtk_dialog_run (GTK_DIALOG (fileopen)) == GTK_RESPONSE_ACCEPT )
+	{
+	    /*save return path*/
+		folder_path = gtk_file_chooser_get_filename ( GTK_FILE_CHOOSER (fileopen) );
+
+	    /*read folder a*/
+	    reset_folder( &folder_a );
+	    set_root_folder_attributes( &folder_a, folder_path );
+	    read_folder( folder_path , &folder_a );
+
+	    /*add folder to treeview*/
+	    add_folder_to_treeview( &folder_a, tmp->tree, NULL );
+
+	    /*free the string*/
+	    g_free (folder_path);
+	}
+	/*destroy the widget*/
+	gtk_widget_destroy (fileopen);
+}
 
 void start_gtk_gui( void )
 {
@@ -211,19 +247,29 @@ void start_gtk_gui( void )
 	GtkWidget *main_win;
 	GtkWidget *menubar_layout;
 	GtkWidget *tree_layout;
+	GtkWidget *layout_a;
+	GtkWidget *layout_b;
 	GtkWidget *main_tree_a;
 	GtkWidget *main_tree_b;
 	GtkTreeStore *viewright;
 	GtkTreeStore *viewleft;
+	GtkWidget *btn_open_a;
+	GtkWidget *btn_open_b;
+	btn_data data_a;
 
-	folderst folder_a;
 	folderst folder_b;
 
 	/*initialize main window*/
 	main_win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	/*initialize layout*/
 	menubar_layout = gtk_vbox_new( FALSE, 0 );
+	layout_a = gtk_vbox_new( FALSE, 0 );
+	layout_b = gtk_vbox_new( FALSE, 0 );
 	tree_layout = gtk_hbox_new( TRUE, 4 );
+
+	/*initialize buttons*/
+	btn_open_a = gtk_button_new_from_stock( GTK_STOCK_OPEN );
+	btn_open_b = gtk_button_new_from_stock( GTK_STOCK_OPEN );
 
 
 	/*add layout to main window*/
@@ -236,12 +282,14 @@ void start_gtk_gui( void )
 	/*add menubar*/
 	add_menubar_to_main_win( menubar_layout );
 
-	gtk_box_pack_start( GTK_BOX(menubar_layout), tree_layout, FALSE, FALSE, 3 );
+	/*pack Layouts*/
+	gtk_box_pack_start( GTK_BOX(menubar_layout), tree_layout, TRUE, TRUE, 5 );
+	gtk_box_pack_start( GTK_BOX(tree_layout), layout_a, TRUE, TRUE, 5 );
+	gtk_box_pack_start( GTK_BOX(tree_layout), layout_b, TRUE, TRUE, 5 );
 
-	/*read folder a*/
-	reset_folder( &folder_a );
-	set_root_folder_attributes( &folder_a, "/home/fabi/temp/folderA" );
-	read_folder( "/home/fabi/temp/folderA", &folder_a );
+	/*pack buttons*/
+	gtk_box_pack_start( GTK_BOX(layout_a), btn_open_a, FALSE, FALSE, 3 );
+	gtk_box_pack_start( GTK_BOX(layout_b), btn_open_b, FALSE, FALSE, 3 );
 
 	/*read folder b*/
 	reset_folder( &folder_b );
@@ -249,14 +297,18 @@ void start_gtk_gui( void )
 	read_folder( "/home/fabi/temp/subsetB/folderA", &folder_b );
 
 	/*add treeview and get back the tree store*/
-	viewright = add_treeview( tree_layout, &main_tree_a );
-	viewleft = add_treeview( tree_layout, &main_tree_b );
+	viewright = add_treeview( layout_a, &main_tree_a );
+	viewleft = add_treeview( layout_b, &main_tree_b );
 
 	/*add folders to treeviews*/
-	add_folder_to_treeview( &folder_a, viewright, NULL );
+	data_a.parent = main_win;
+	data_a.tree = viewright;
+
 	add_folder_to_treeview( &folder_b, viewleft, NULL );
 
-	g_signal_connect (main_win, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+	/*add signals to buttons*/
+	g_signal_connect( btn_open_a, "clicked", G_CALLBACK(button_a_clicked), &data_a );
+	g_signal_connect (main_win, "destroy", G_CALLBACK(gtk_main_quit), NULL );
 
 	gtk_widget_show_all (main_win);
 }
