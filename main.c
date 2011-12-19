@@ -82,6 +82,7 @@ void set_main_win_attributes( GtkWidget *pwindow, gchar *ptitle )
 /*enum for tree columns*/
 enum
 {
+	PIC_COLUMN, /*symbol*/
 	NAME_COLUMN, /*folder- or filename*/
 	FSIZE_COLUMN, /*filesize*/
 	CHDATE_COLUMN, /*changedate*/
@@ -89,7 +90,7 @@ enum
 	N_COLUMNS /*number of cols*/
 };
 
-void append_files_to_treeview( GtkTreeStore *pstore, GtkTreeIter *piter, GtkTreeIter *pparent,filest *plist, int pnumfiles )
+void append_files_to_treeview( GtkTreeStore *pstore, GtkTreeIter *piter, GtkTreeIter *pparent,filest *plist, int pnumfiles, GdkPixbuf *picon )
 {
 	/*variables*/
 	int i = 0;
@@ -98,6 +99,7 @@ void append_files_to_treeview( GtkTreeStore *pstore, GtkTreeIter *piter, GtkTree
 	{
 		/*set current entry of the treeview*/
 		gtk_tree_store_set( pstore, piter,
+				PIC_COLUMN, picon,
 				NAME_COLUMN, plist[i].filename,
 				FSIZE_COLUMN, plist[i].filesize,
 				CHDATE_COLUMN, plist[i].str_changedate,
@@ -114,15 +116,27 @@ void add_folder_to_treeview( folderst *pfolder, GtkTreeStore *pstore, GtkTreeIte
 	/*variables*/
 	GtkTreeIter additer;
 	unsigned int i = 0;
+	GdkPixbuf *treeicon;
+	GError *picerr; /*error for loading pixbuf*/
+	GtkIconTheme *curtheme;
+
+	/*get default gtk theme*/
+	curtheme = gtk_icon_theme_get_default();
+
+	/*load file icon*/
+	treeicon = gtk_icon_theme_load_icon( curtheme, "document", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
 
 	gtk_tree_store_append( pstore, &additer, pparent );
 
-	append_files_to_treeview( pstore, &additer, pparent,(*pfolder).filelist, (*pfolder).numfiles );
+	append_files_to_treeview( pstore, &additer, pparent,(*pfolder).filelist, (*pfolder).numfiles, treeicon );
+
+	treeicon = gtk_icon_theme_load_icon( curtheme, "folder", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
 
 	for( i = 0; i < (*pfolder).numfolders; i++ )
 	{
 
 		gtk_tree_store_set( pstore, &additer,
+							PIC_COLUMN, treeicon,
 							NAME_COLUMN, (*pfolder).folderlist[i].foldername,
 							FSIZE_COLUMN, 0,
 							CHDATE_COLUMN, "-",
@@ -141,6 +155,7 @@ void add_treeview( GtkWidget *playout, GtkWidget **ptview, char ppos )
 	/*variables*/
 	GtkTreeStore *filetree;
 	GtkCellRenderer *treerenderer;
+	GtkTreeViewColumn *piccolumn;
 	GtkTreeViewColumn *namecolumn;
 	GtkTreeViewColumn *sizecolumn;
 	GtkTreeViewColumn *chdatecolumn;
@@ -151,20 +166,23 @@ void add_treeview( GtkWidget *playout, GtkWidget **ptview, char ppos )
 	set_root_folder_attributes( &folder_a, "/home/fabi/temp/folderA" );
 	read_folder( "/home/fabi/temp/folderA", &folder_a );
 
-	filetree = gtk_tree_store_new( N_COLUMNS, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING );
+	filetree = gtk_tree_store_new( N_COLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING );
 
 	add_folder_to_treeview( &folder_a, filetree, NULL );
 
 	*ptview = gtk_tree_view_new_with_model( GTK_TREE_MODEL(filetree) );
 
-	treerenderer = gtk_cell_renderer_text_new();
 	/*define columns*/
+	treerenderer = gtk_cell_renderer_pixbuf_new();
+	piccolumn = gtk_tree_view_column_new_with_attributes( NULL, treerenderer, "pixbuf", PIC_COLUMN, NULL );
+	treerenderer = gtk_cell_renderer_text_new();
 	namecolumn = gtk_tree_view_column_new_with_attributes( "Name", treerenderer, "text", NAME_COLUMN, NULL );
 	sizecolumn = gtk_tree_view_column_new_with_attributes( "Size", treerenderer, "text", FSIZE_COLUMN, NULL );
 	chdatecolumn = gtk_tree_view_column_new_with_attributes( "Changedate", treerenderer, "text", CHDATE_COLUMN, NULL );
 	equalcolumn = gtk_tree_view_column_new_with_attributes( "Equal?", treerenderer, "text", EQUAL_COLUMN, NULL );
 
 	/*append columns*/
+	gtk_tree_view_append_column( GTK_TREE_VIEW(*ptview), piccolumn );
 	gtk_tree_view_append_column( GTK_TREE_VIEW(*ptview), namecolumn );
 	gtk_tree_view_append_column( GTK_TREE_VIEW(*ptview), sizecolumn );
 	gtk_tree_view_append_column( GTK_TREE_VIEW(*ptview), chdatecolumn );
