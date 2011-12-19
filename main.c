@@ -174,15 +174,19 @@ void add_treeview( GtkWidget *playout, GtkWidget **ptview, char ppos )
 
 	/*define columns*/
 	treerenderer = gtk_cell_renderer_pixbuf_new();
-	piccolumn = gtk_tree_view_column_new_with_attributes( NULL, treerenderer, "pixbuf", PIC_COLUMN, NULL );
+	namecolumn = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title( namecolumn, "Name" );
+	gtk_tree_view_column_pack_start( namecolumn, treerenderer, FALSE );
+	gtk_tree_view_column_set_attributes( namecolumn, treerenderer, "pixbuf", PIC_COLUMN, NULL );
 	treerenderer = gtk_cell_renderer_text_new();
-	namecolumn = gtk_tree_view_column_new_with_attributes( "Name", treerenderer, "text", NAME_COLUMN, NULL );
+	gtk_tree_view_column_pack_start( namecolumn, treerenderer, TRUE );
+	gtk_tree_view_column_set_attributes( namecolumn, treerenderer, "text", NAME_COLUMN, NULL );
+
 	sizecolumn = gtk_tree_view_column_new_with_attributes( "Size", treerenderer, "text", FSIZE_COLUMN, NULL );
 	chdatecolumn = gtk_tree_view_column_new_with_attributes( "Changedate", treerenderer, "text", CHDATE_COLUMN, NULL );
 	equalcolumn = gtk_tree_view_column_new_with_attributes( "Equal?", treerenderer, "text", EQUAL_COLUMN, NULL );
 
 	/*append columns*/
-	gtk_tree_view_append_column( GTK_TREE_VIEW(*ptview), piccolumn );
 	gtk_tree_view_append_column( GTK_TREE_VIEW(*ptview), namecolumn );
 	gtk_tree_view_append_column( GTK_TREE_VIEW(*ptview), sizecolumn );
 	gtk_tree_view_append_column( GTK_TREE_VIEW(*ptview), chdatecolumn );
