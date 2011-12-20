@@ -7,14 +7,30 @@
 #include <gtk/gtk.h>
 
 /* to do:
- * - add menu bar
+ * - remove "Open" form menu "File"
+ * - add logo to gui
+ * - add labels for the folders
+ * - Add "sync" button
+ * - pack gui stuff into own module
  */
 
 /*functions*/
 /*main_window*/
 
+/*defintion of the window size (startup)*/
 #define WIDTH 850
 #define HEIGHT 550
+
+/*enum for treeview columns*/
+enum
+{
+	PIC_COLUMN, /*symbol*/
+	NAME_COLUMN, /*folder- or filename*/
+	FSIZE_COLUMN, /*filesize*/
+	CHDATE_COLUMN, /*changedate*/
+	EQUAL_COLUMN, /*equality of the file*/
+	N_COLUMNS /*number of cols*/
+};
 
 void add_menubar_to_main_win( GtkWidget *playout )
 {
@@ -80,18 +96,6 @@ void set_main_win_attributes( GtkWidget *pwindow, gchar *ptitle )
 	gtk_window_set_default_size( GTK_WINDOW(pwindow), WIDTH, HEIGHT );
 	gtk_window_set_position( GTK_WINDOW(pwindow), GTK_WIN_POS_CENTER );
 }
-
-
-/*enum for tree columns*/
-enum
-{
-	PIC_COLUMN, /*symbol*/
-	NAME_COLUMN, /*folder- or filename*/
-	FSIZE_COLUMN, /*filesize*/
-	CHDATE_COLUMN, /*changedate*/
-	EQUAL_COLUMN, /*equality of the file*/
-	N_COLUMNS /*number of cols*/
-};
 
 void append_files_to_treeview( GtkTreeStore *pstore, GtkTreeIter *piter, GtkTreeIter *pparent,filest *plist, int pnumfiles, GdkPixbuf *picon )
 {
@@ -203,23 +207,18 @@ GtkTreeStore *add_treeview( GtkWidget *playout, GtkWidget **ptview )
 	return filetree;
 }
 
-/*struct for button_data*/
-typedef struct btn
-{
-	GtkWidget *parent;
-	GtkTreeStore *tree;
-} btn_data;
-
-void button_a_clicked( GtkButton *pbtn, gpointer data )
+/*callback functions*/
+void button_open_clicked( GtkButton *pbtn, gpointer data)
 {
 	/*variables*/
 	GtkWidget *fileopen;
 	char *folder_path;
-	folderst folder_a;
-	btn_data *tmp = (btn_data*) data;
+	folderst folder;
+	GtkTreeStore *tmp = (GtkTreeStore*) data;
 
 	/*create fileopen dialog*/
-	fileopen = gtk_file_chooser_dialog_new( "Verzeichnis öffnen", NULL, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, NULL );
+	fileopen = gtk_file_chooser_dialog_new( "Verzeichnis öffnen", NULL
+			, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL );
 
 	if( gtk_dialog_run (GTK_DIALOG (fileopen)) == GTK_RESPONSE_ACCEPT )
 	{
@@ -227,12 +226,17 @@ void button_a_clicked( GtkButton *pbtn, gpointer data )
 		folder_path = gtk_file_chooser_get_filename ( GTK_FILE_CHOOSER (fileopen) );
 
 	    /*read folder a*/
-	    reset_folder( &folder_a );
-	    set_root_folder_attributes( &folder_a, folder_path );
-	    read_folder( folder_path , &folder_a );
+	    reset_folder( &folder );
+	    set_root_folder_attributes( &folder, folder_path );
+	    read_folder( folder_path , &folder );
 
-	    /*add folder to treeview*/
-	    add_folder_to_treeview( &folder_a, tmp->tree, NULL );
+	    /*add folder to treeview; clear before adding*/
+	    if( GTK_IS_TREE_STORE(tmp) )
+	    {
+	    	gtk_tree_store_clear( tmp );
+	    	add_folder_to_treeview( &folder, tmp, NULL );
+	    }
+	    g_print( "%s\n", folder_path );
 
 	    /*free the string*/
 	    g_free (folder_path);
@@ -255,9 +259,6 @@ void start_gtk_gui( void )
 	GtkTreeStore *viewleft;
 	GtkWidget *btn_open_a;
 	GtkWidget *btn_open_b;
-	btn_data data_a;
-
-	folderst folder_b;
 
 	/*initialize main window*/
 	main_win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -291,23 +292,14 @@ void start_gtk_gui( void )
 	gtk_box_pack_start( GTK_BOX(layout_a), btn_open_a, FALSE, FALSE, 3 );
 	gtk_box_pack_start( GTK_BOX(layout_b), btn_open_b, FALSE, FALSE, 3 );
 
-	/*read folder b*/
-	reset_folder( &folder_b );
-	set_root_folder_attributes( &folder_b, "/home/fabi/temp/subsetB/folderA" );
-	read_folder( "/home/fabi/temp/subsetB/folderA", &folder_b );
 
 	/*add treeview and get back the tree store*/
-	viewright = add_treeview( layout_a, &main_tree_a );
-	viewleft = add_treeview( layout_b, &main_tree_b );
-
-	/*add folders to treeviews*/
-	data_a.parent = main_win;
-	data_a.tree = viewright;
-
-	add_folder_to_treeview( &folder_b, viewleft, NULL );
+	viewleft = add_treeview( layout_a, &main_tree_a );
+	viewright = add_treeview( layout_b, &main_tree_b );
 
 	/*add signals to buttons*/
-	g_signal_connect( btn_open_a, "clicked", G_CALLBACK(button_a_clicked), &data_a );
+	g_signal_connect( btn_open_a, "clicked", G_CALLBACK(button_open_clicked), viewleft );
+	g_signal_connect( btn_open_b, "clicked", G_CALLBACK(button_open_clicked), viewright );
 	g_signal_connect (main_win, "destroy", G_CALLBACK(gtk_main_quit), NULL );
 
 	gtk_widget_show_all (main_win);
