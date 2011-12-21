@@ -7,9 +7,10 @@
 #include <gtk/gtk.h>
 
 /* to do:
- * - remove "Open" form menu "File"
+ * - get the right icons
+ * - change folder icon when its opened
+ * - write sync dialog
  * - wirte "README"
- * - add logo to gui
  * - Add "sync" button
  * - pack gui stuff into own module
  */
@@ -31,6 +32,14 @@ enum
 	EQUAL_COLUMN, /*equality of the file*/
 	N_COLUMNS /*number of cols*/
 };
+
+/*struct for callback function "button_open_clicked"*/
+typedef struct
+{
+	GtkWindow *parent;
+	GtkTreeStore *store;
+	GtkEntry *entry;
+} btn_open_data;
 
 void add_menubar_to_main_win( GtkWidget *playout )
 {
@@ -118,27 +127,46 @@ void append_files_to_treeview( GtkTreeStore *pstore, GtkTreeIter *piter, GtkTree
 	}
 }
 
+GdkPixbuf *get_icon( gint type )
+{
+	/* type: 1 is file, 2 is folder*/
+
+	/*variables*/
+	GdkPixbuf *tmp;
+	GtkIconTheme *curtheme;
+
+	/*get default gtk theme*/
+	curtheme = gtk_icon_theme_get_default();
+
+	if( type == 1 )
+		/*load file icon*/
+		tmp = gtk_icon_theme_load_icon( curtheme, "document", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
+	else
+		/*load folder icon*/
+		tmp = gtk_icon_theme_load_icon( curtheme, "folder", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
+
+	return tmp;
+}
+
 void add_folder_to_treeview( folderst *pfolder, GtkTreeStore *pstore, GtkTreeIter *pparent )
 {
 	/*variables*/
 	GtkTreeIter additer;
 	unsigned int i = 0;
 	GdkPixbuf *treeicon;
-	GError *picerr; /*error for loading pixbuf*/
 	GtkIconTheme *curtheme;
 
-	/*get default gtk theme*/
-	curtheme = gtk_icon_theme_get_default();
+	if( (*pfolder).numfiles > 0 )
+	{
+		treeicon = get_icon( 1 );
+		gtk_tree_store_append( pstore, &additer, pparent );
 
-	gtk_tree_store_append( pstore, &additer, pparent );
+		/*append files to treeview*/
+		append_files_to_treeview( pstore, &additer, pparent,(*pfolder).filelist, (*pfolder).numfiles, treeicon );
+	}
 
-	/*load file icon*/
-	treeicon = gtk_icon_theme_load_icon( curtheme, "document", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
-	/*append files to treeview*/
-	append_files_to_treeview( pstore, &additer, pparent,(*pfolder).filelist, (*pfolder).numfiles, treeicon );
-
-	/*load folder icon*/
-	treeicon = gtk_icon_theme_load_icon( curtheme, "folder", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
+	if( (*pfolder).numfolders > 0 )
+		treeicon = get_icon( 2 );
 
 	for( i = 0; i < (*pfolder).numfolders; i++ )
 	{
@@ -159,7 +187,7 @@ void add_folder_to_treeview( folderst *pfolder, GtkTreeStore *pstore, GtkTreeIte
 	}
 }
 
-GtkTreeStore *add_folder_choose( GtkWidget *playout, GtkWidget **ptview )
+GtkTreeStore *add_folder_view( GtkWidget *playout, GtkWidget **ptview )
 {
 	/*variables*/
 	GtkTreeStore *filetree;
@@ -208,16 +236,15 @@ GtkTreeStore *add_folder_choose( GtkWidget *playout, GtkWidget **ptview )
 }
 
 /*callback functions*/
-void button_open_clicked( GtkButton *pbtn, gpointer data)
+void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 {
 	/*variables*/
 	GtkWidget *fileopen;
 	char *folder_path;
 	folderst folder;
-	GtkTreeStore *tmp = (GtkTreeStore*) data;
 
 	/*create fileopen dialog*/
-	fileopen = gtk_file_chooser_dialog_new( "Verzeichnis öffnen", NULL
+	fileopen = gtk_file_chooser_dialog_new( "Verzeichnis öffnen", data->parent
 			, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL );
 
 	if( gtk_dialog_run (GTK_DIALOG (fileopen)) == GTK_RESPONSE_ACCEPT )
@@ -231,10 +258,12 @@ void button_open_clicked( GtkButton *pbtn, gpointer data)
 	    read_folder( folder_path , &folder );
 
 	    /*add folder to treeview; clear before adding*/
-	    if( GTK_IS_TREE_STORE(tmp) )
+	    if( GTK_IS_TREE_STORE(data->store) )
 	    {
-	    	gtk_tree_store_clear( tmp );
-	    	add_folder_to_treeview( &folder, tmp, NULL );
+	    	gtk_tree_store_clear( data->store );
+	    	add_folder_to_treeview( &folder, data->store, NULL );
+	    	/*set text to entry*/
+	    	gtk_entry_set_text( GTK_ENTRY(data->entry), folder_path );
 	    }
 	    g_print( "%s\n", folder_path );
 
@@ -263,6 +292,8 @@ void start_gtk_gui( void )
 	GtkWidget *entry_b;
 	GtkWidget *frame_a;
 	GtkWidget *frame_b;
+	btn_open_data *btn_data_a;
+	btn_open_data *btn_data_b;
 
 
 	/*initialize main window*/
@@ -317,12 +348,25 @@ void start_gtk_gui( void )
 
 
 	/*add treeview and get back the tree store*/
-	viewleft = add_folder_choose( layout_a, &main_tree_a );
-	viewright = add_folder_choose( layout_b, &main_tree_b );
+	viewleft = add_folder_view( layout_a, &main_tree_a );
+	viewright = add_folder_view( layout_b, &main_tree_b );
+
+	/*set data for callback function*/
+	/*alloc memory*/
+	btn_data_a = g_slice_new( btn_open_data );
+	btn_data_b = g_slice_new( btn_open_data );
+	/*button a*/
+	btn_data_a->parent = GTK_WINDOW( main_win );
+	btn_data_a->store = viewleft;
+	btn_data_a->entry = GTK_ENTRY(entry_a);
+	/*button b*/
+	btn_data_b->parent = GTK_WINDOW( main_win );
+	btn_data_b->store = viewright;
+	btn_data_b->entry = GTK_ENTRY(entry_b);
 
 	/*add signals to buttons*/
-	g_signal_connect( btn_open_a, "clicked", G_CALLBACK(button_open_clicked), viewleft );
-	g_signal_connect( btn_open_b, "clicked", G_CALLBACK(button_open_clicked), viewright );
+	g_signal_connect( btn_open_a, "clicked", G_CALLBACK(button_open_clicked), btn_data_a );
+	g_signal_connect( btn_open_b, "clicked", G_CALLBACK(button_open_clicked), btn_data_b );
 	g_signal_connect (main_win, "destroy", G_CALLBACK(gtk_main_quit), NULL );
 
 	gtk_widget_show_all (main_win);
