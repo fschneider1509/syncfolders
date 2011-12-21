@@ -8,8 +8,8 @@
 
 /* to do:
  * - remove "Open" form menu "File"
+ * - wirte "README"
  * - add logo to gui
- * - add labels for the folders
  * - Add "sync" button
  * - pack gui stuff into own module
  */
@@ -41,8 +41,6 @@ void add_menubar_to_main_win( GtkWidget *playout )
 	GtkWidget *file_top; /*top entry*/
 	GtkWidget *sync_top; /*top entry*/
 	GtkWidget *sync_entry; /*menu entry for syncing*/
-	GtkWidget *file_separator;
-	GtkWidget *open_entry; /*menu entry for file open*/
 	GtkWidget *exit_entry; /*menu entry for exit application*/
 
 	/*initialize menubar*/
@@ -54,20 +52,14 @@ void add_menubar_to_main_win( GtkWidget *playout )
 	/*set menu labels*/
 	/*file menu*/
 	file_top = gtk_menu_item_new_with_mnemonic( "_Datei" );
-	open_entry = gtk_image_menu_item_new_from_stock( GTK_STOCK_OPEN, NULL );
 	exit_entry = gtk_image_menu_item_new_from_stock( GTK_STOCK_QUIT, NULL );
 	/*sync menu*/
 	sync_top = gtk_menu_item_new_with_mnemonic( "_Sync" );
 	sync_entry = gtk_image_menu_item_new_from_stock( GTK_STOCK_COPY, NULL );
 
-	/*initialize separator*/
-	file_separator = gtk_separator_menu_item_new();
-
 	/*add menus*/
 	/*file menu*/
 	gtk_menu_item_set_submenu( GTK_MENU_ITEM(file_top), file_menu );
-	gtk_menu_shell_append( GTK_MENU_SHELL(file_menu), open_entry );
-	gtk_menu_shell_append( GTK_MENU_SHELL(file_menu), file_separator );
 	gtk_menu_shell_append( GTK_MENU_SHELL(file_menu), exit_entry );
 	/*sync menu*/
 	gtk_menu_item_set_submenu( GTK_MENU_ITEM(sync_top), sync_menu );
@@ -89,12 +81,20 @@ void add_menubar_to_main_win( GtkWidget *playout )
 
 void set_main_win_attributes( GtkWidget *pwindow, gchar *ptitle )
 {
+	/*variables*/
+	GdkPixbuf *icon;
+	GError *err = NULL;
+
 	/*set attributes of the main-window*/
 	gtk_window_set_title (GTK_WINDOW (pwindow), ptitle );
 	gtk_container_set_border_width (GTK_CONTAINER (pwindow), 0);
 	gtk_window_set_resizable( GTK_WINDOW(pwindow), TRUE );
 	gtk_window_set_default_size( GTK_WINDOW(pwindow), WIDTH, HEIGHT );
 	gtk_window_set_position( GTK_WINDOW(pwindow), GTK_WIN_POS_CENTER );
+
+	/*set icon*/
+	icon = gdk_pixbuf_new_from_file( "logo.png", &err );
+	gtk_window_set_icon( GTK_WINDOW(pwindow), icon );
 }
 
 void append_files_to_treeview( GtkTreeStore *pstore, GtkTreeIter *piter, GtkTreeIter *pparent,filest *plist, int pnumfiles, GdkPixbuf *picon )
@@ -159,7 +159,7 @@ void add_folder_to_treeview( folderst *pfolder, GtkTreeStore *pstore, GtkTreeIte
 	}
 }
 
-GtkTreeStore *add_treeview( GtkWidget *playout, GtkWidget **ptview )
+GtkTreeStore *add_folder_choose( GtkWidget *playout, GtkWidget **ptview )
 {
 	/*variables*/
 	GtkTreeStore *filetree;
@@ -170,7 +170,6 @@ GtkTreeStore *add_treeview( GtkWidget *playout, GtkWidget **ptview )
 	GtkTreeViewColumn *chdatecolumn;
 	GtkTreeViewColumn *equalcolumn;
 	GtkWidget *scrollarea;
-
 
 	/*add scrollarea for scrolling in the treewidget*/
 	scrollarea = gtk_scrolled_window_new( NULL, NULL );
@@ -203,6 +202,7 @@ GtkTreeStore *add_treeview( GtkWidget *playout, GtkWidget **ptview )
 
 	gtk_container_add( GTK_CONTAINER(scrollarea), *ptview );
 	gtk_box_pack_start( GTK_BOX(playout), scrollarea, TRUE, TRUE, 4 );
+
 
 	return filetree;
 }
@@ -259,6 +259,11 @@ void start_gtk_gui( void )
 	GtkTreeStore *viewleft;
 	GtkWidget *btn_open_a;
 	GtkWidget *btn_open_b;
+	GtkWidget *entry_a;
+	GtkWidget *entry_b;
+	GtkWidget *frame_a;
+	GtkWidget *frame_b;
+
 
 	/*initialize main window*/
 	main_win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -268,9 +273,21 @@ void start_gtk_gui( void )
 	layout_b = gtk_vbox_new( FALSE, 0 );
 	tree_layout = gtk_hbox_new( TRUE, 4 );
 
+	/*initialize frames*/
+	frame_a = gtk_frame_new( "Folder A" );
+	frame_b = gtk_frame_new( "Folder B" );
+
+
 	/*initialize buttons*/
 	btn_open_a = gtk_button_new_from_stock( GTK_STOCK_OPEN );
 	btn_open_b = gtk_button_new_from_stock( GTK_STOCK_OPEN );
+
+	/*initialize entries*/
+	entry_a = gtk_entry_new();
+	entry_b = gtk_entry_new();
+	/*set them not editable*/
+	gtk_entry_set_editable( GTK_ENTRY(entry_a), FALSE );
+	gtk_entry_set_editable( GTK_ENTRY(entry_b), FALSE );
 
 
 	/*add layout to main window*/
@@ -283,19 +300,25 @@ void start_gtk_gui( void )
 	/*add menubar*/
 	add_menubar_to_main_win( menubar_layout );
 
-	/*pack Layouts*/
+	/*pack Layouts and frames*/
 	gtk_box_pack_start( GTK_BOX(menubar_layout), tree_layout, TRUE, TRUE, 5 );
-	gtk_box_pack_start( GTK_BOX(tree_layout), layout_a, TRUE, TRUE, 5 );
-	gtk_box_pack_start( GTK_BOX(tree_layout), layout_b, TRUE, TRUE, 5 );
+	gtk_box_pack_start( GTK_BOX(tree_layout), frame_a, TRUE, TRUE, 5 );
+	gtk_box_pack_start( GTK_BOX(tree_layout), frame_b, TRUE, TRUE, 5 );
+	gtk_container_add( GTK_CONTAINER(frame_a), layout_a );
+	gtk_container_add( GTK_CONTAINER(frame_b), layout_b );
 
 	/*pack buttons*/
 	gtk_box_pack_start( GTK_BOX(layout_a), btn_open_a, FALSE, FALSE, 3 );
 	gtk_box_pack_start( GTK_BOX(layout_b), btn_open_b, FALSE, FALSE, 3 );
 
+	/*pack entries*/
+	gtk_box_pack_start( GTK_BOX(layout_a), entry_a, FALSE, FALSE, 3 );
+	gtk_box_pack_start( GTK_BOX(layout_b), entry_b, FALSE, FALSE, 3 );
+
 
 	/*add treeview and get back the tree store*/
-	viewleft = add_treeview( layout_a, &main_tree_a );
-	viewright = add_treeview( layout_b, &main_tree_b );
+	viewleft = add_folder_choose( layout_a, &main_tree_a );
+	viewright = add_folder_choose( layout_b, &main_tree_b );
 
 	/*add signals to buttons*/
 	g_signal_connect( btn_open_a, "clicked", G_CALLBACK(button_open_clicked), viewleft );
