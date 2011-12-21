@@ -10,8 +10,7 @@
  * - get the right icons
  * - change folder icon when its opened
  * - write sync dialog
- * - wirte "README"
- * - Add "sync" button
+ * - write "README"
  * - pack gui stuff into own module
  */
 
@@ -294,15 +293,23 @@ void start_gtk_gui( void )
 	GtkWidget *frame_b;
 	btn_open_data *btn_data_a;
 	btn_open_data *btn_data_b;
+	GtkWidget *btn_sync;
+	GtkWidget *btn_close;
+	GtkWidget *sync_layout;
 
 
 	/*initialize main window*/
 	main_win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	/*initialize layout*/
 	menubar_layout = gtk_vbox_new( FALSE, 0 );
-	layout_a = gtk_vbox_new( FALSE, 0 );
-	layout_b = gtk_vbox_new( FALSE, 0 );
+	layout_a = gtk_vbox_new( FALSE, 3 );
+	layout_b = gtk_vbox_new( FALSE, 3 );
 	tree_layout = gtk_hbox_new( TRUE, 4 );
+	sync_layout = gtk_hbutton_box_new();
+
+	/*set button layout*/
+	gtk_hbutton_box_set_layout_default( GTK_BUTTONBOX_START );
+	//gtk_button_box_set_child_ipadding( GTK_BUTTON_BOX(sync_layout), 10, 3 );
 
 	/*initialize frames*/
 	frame_a = gtk_frame_new( "Folder A" );
@@ -312,6 +319,8 @@ void start_gtk_gui( void )
 	/*initialize buttons*/
 	btn_open_a = gtk_button_new_from_stock( GTK_STOCK_OPEN );
 	btn_open_b = gtk_button_new_from_stock( GTK_STOCK_OPEN );
+	btn_sync = gtk_button_new_from_stock( GTK_STOCK_COPY );
+	btn_close = gtk_button_new_from_stock( GTK_STOCK_QUIT );
 
 	/*initialize entries*/
 	entry_a = gtk_entry_new();
@@ -332,9 +341,10 @@ void start_gtk_gui( void )
 	add_menubar_to_main_win( menubar_layout );
 
 	/*pack Layouts and frames*/
-	gtk_box_pack_start( GTK_BOX(menubar_layout), tree_layout, TRUE, TRUE, 5 );
-	gtk_box_pack_start( GTK_BOX(tree_layout), frame_a, TRUE, TRUE, 5 );
-	gtk_box_pack_start( GTK_BOX(tree_layout), frame_b, TRUE, TRUE, 5 );
+	gtk_box_pack_start( GTK_BOX(menubar_layout), tree_layout, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(menubar_layout), sync_layout, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(tree_layout), frame_a, TRUE, TRUE, 3 );
+	gtk_box_pack_start( GTK_BOX(tree_layout), frame_b, TRUE, TRUE, 3 );
 	gtk_container_add( GTK_CONTAINER(frame_a), layout_a );
 	gtk_container_add( GTK_CONTAINER(frame_b), layout_b );
 
@@ -343,13 +353,17 @@ void start_gtk_gui( void )
 	gtk_box_pack_start( GTK_BOX(layout_b), btn_open_b, FALSE, FALSE, 3 );
 
 	/*pack entries*/
-	gtk_box_pack_start( GTK_BOX(layout_a), entry_a, FALSE, FALSE, 3 );
-	gtk_box_pack_start( GTK_BOX(layout_b), entry_b, FALSE, FALSE, 3 );
+	gtk_box_pack_start( GTK_BOX(layout_a), entry_a, FALSE, FALSE, 0 );
+	gtk_box_pack_start( GTK_BOX(layout_b), entry_b, FALSE, FALSE, 0 );
 
 
 	/*add treeview and get back the tree store*/
 	viewleft = add_folder_view( layout_a, &main_tree_a );
 	viewright = add_folder_view( layout_b, &main_tree_b );
+
+	/*add sync button*/
+	gtk_box_pack_start( GTK_BOX(sync_layout), btn_sync, FALSE, FALSE, 0 );
+	gtk_box_pack_start( GTK_BOX(sync_layout), btn_close, FALSE, FALSE, 0 );
 
 	/*set data for callback function*/
 	/*alloc memory*/
@@ -367,6 +381,7 @@ void start_gtk_gui( void )
 	/*add signals to buttons*/
 	g_signal_connect( btn_open_a, "clicked", G_CALLBACK(button_open_clicked), btn_data_a );
 	g_signal_connect( btn_open_b, "clicked", G_CALLBACK(button_open_clicked), btn_data_b );
+	g_signal_connect( btn_close, "clicked", G_CALLBACK(gtk_main_quit), NULL );
 	g_signal_connect (main_win, "destroy", G_CALLBACK(gtk_main_quit), NULL );
 
 	gtk_widget_show_all (main_win);
