@@ -1,3 +1,40 @@
 syncfolders-gtk
 
+This is a small tool for syncing two folders. The folders can be choosen by using the
+fileopen-dialogs in the gui. The folders a recusively scanned and displayed in the 
+treeview. 
+For syncing the folders a breadth-first search is used.
+The tool is written for Linux operating systems, but I think it will also work
+on *BSD systems. I'll try and build it also on OS X. There is / will be no
+windows version.
 
+License gpl
+
+Needed software / libs:
+- gcc
+- make (GNU make)
+- GTK+2.0 (in most distributions gtk-devel)
+- glib
+- glibc
+- git
+
+Building:
+
+Building the tool is very easy, do the following steps:
+1.) cd syncfolders/
+2.) make
+3.) ready :)
+
+Start it with ./syncfolders-gtk.
+
+The gui is written in GTK+-2.0. This is my first GTK program, so it is possible that
+there will be some "ugly" code.
+
+Attention: The copy function for files is very simple, the file attributes (e.g. access, etc.)
+will not be copied.
+
+If you want to contribute feel free to send patches to fschneider1509@googlemail.com.
+If you want to checkout the source code via git, use this link: "git clone
+http://code.google.com/p/syncfolders/".
+
+Warning: There is absolutely no warranty. Before using the tool please make a backup.
