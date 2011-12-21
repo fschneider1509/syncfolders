@@ -352,13 +352,14 @@ int read_folder( char *ppath, folderst *pfolder )
 
 			(*pfolder).empty = check_is_empty( pfolder );
 		}		
-		return 1;
+		closedir( curdir );
 	}
 	else
 	{
 		print_msg ( "error opening folder", ppath, 2 );
 		return -1;
-	}		
+	}
+	return 1;		
 }
 
 char *remove_trailing_slash( char *ppath )
