@@ -126,7 +126,7 @@ void append_files_to_treeview( GtkTreeStore *pstore, GtkTreeIter *piter, GtkTree
 	}
 }
 
-GdkPixbuf *get_icon( gint type )
+GdkPixbuf *get_icon( gint type, gchar *ppath )
 {
 	/* type: 1 is file, 2 is folder*/
 
@@ -157,7 +157,7 @@ void add_folder_to_treeview( folderst *pfolder, GtkTreeStore *pstore, GtkTreeIte
 
 	if( (*pfolder).numfiles > 0 )
 	{
-		treeicon = get_icon( 1 );
+		treeicon = get_icon( 1, "test" );
 		gtk_tree_store_append( pstore, &additer, pparent );
 
 		/*append files to treeview*/
@@ -165,7 +165,7 @@ void add_folder_to_treeview( folderst *pfolder, GtkTreeStore *pstore, GtkTreeIte
 	}
 
 	if( (*pfolder).numfolders > 0 )
-		treeicon = get_icon( 2 );
+		treeicon = get_icon( 2, "test" );
 
 	for( i = 0; i < (*pfolder).numfolders; i++ )
 	{
@@ -308,7 +308,6 @@ void start_gtk_gui( void )
 	sync_layout = gtk_hbutton_box_new();
 
 	/*set button layout*/
-	gtk_hbutton_box_set_layout_default( GTK_BUTTONBOX_START );
 	//gtk_button_box_set_child_ipadding( GTK_BUTTON_BOX(sync_layout), 10, 3 );
 
 	/*initialize frames*/
@@ -362,6 +361,7 @@ void start_gtk_gui( void )
 	viewright = add_folder_view( layout_b, &main_tree_b );
 
 	/*add sync button*/
+	gtk_hbutton_box_set_layout_default( GTK_BUTTONBOX_START );
 	gtk_box_pack_start( GTK_BOX(sync_layout), btn_sync, FALSE, FALSE, 0 );
 	gtk_box_pack_start( GTK_BOX(sync_layout), btn_close, FALSE, FALSE, 0 );
 
