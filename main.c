@@ -7,9 +7,7 @@
 #include <gtk/gtk.h>
 
 /* to do:
- * - get the right icons
- * - change folder icon when its opened
- * - write sync dialog
+  * - write sync dialog
  * - write "README"
  * - pack gui stuff into own module
  */
@@ -171,7 +169,7 @@ void add_folder_to_treeview( folderst *pfolder, GtkTreeStore *pstore, GtkTreeIte
 	{
 		gtk_tree_store_append( pstore, &additer, pparent );
 		gtk_tree_store_set( pstore, &additer, PIC_COLUMN, treeicon,
-							NAME_COLUMN, (gchar*) (*pfolder).folderlist[i].foldername,
+							NAME_COLUMN, (*pfolder).folderlist[i].foldername,
 							FSIZE_COLUMN, 0,
 							CHDATE_COLUMN, "-",
 							EQUAL_COLUMN, "1", -1 );
@@ -245,29 +243,26 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 	{
 	    /*save return path*/
 	    folder_path = gtk_file_chooser_get_filename ( GTK_FILE_CHOOSER (fileopen) );
+
+	    /*read folder a*/
+	    reset_folder( &folder );
+	    set_root_folder_attributes( &folder, folder_path );
+	    read_folder( folder_path , &folder );
+
+	    /*add folder to treeview; clear before adding*/
+	    if( GTK_IS_TREE_STORE(data->store) )
+	    {
+	        gtk_tree_store_clear( data->store );
+	        add_folder_to_treeview( &folder, data->store, NULL );
+	        /*set text to entry*/
+	        gtk_entry_set_text( GTK_ENTRY(data->entry), folder_path );
+	     }
+
+	     /*free the string*/
+	     g_free (folder_path);
 	}
 	/*destroy the widget*/
 	gtk_widget_destroy (fileopen);
-
-	if( folder_path != NULL )
-	{
-		/*read folder a*/
-		reset_folder( &folder );
-		set_root_folder_attributes( &folder, folder_path );
-		read_folder( folder_path , &folder );
-	
-		/*add folder to treeview; clear before adding*/
-		if( GTK_IS_TREE_STORE(data->store) )
-		{
-		    gtk_tree_store_clear( data->store );
-		    add_folder_to_treeview( &folder, data->store, NULL );
-		    /*set text to entry*/
-		    gtk_entry_set_text( GTK_ENTRY(data->entry), folder_path );
-		 }
-	
-		 /*free the string*/
-		 g_free (folder_path);
-	}
 }
 
 void start_gtk_gui( void )
