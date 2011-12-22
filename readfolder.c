@@ -258,10 +258,23 @@ void set_root_folder_attributes( folderst *pfolder, char *ppath )
 
 void set_folder_attributes( folderst *subfolder, folderst *rootfolder, char *pname, char *ppath )
 {
+	/*variables*/
+	size_t namelen = 0;
+
+	namelen = strlen( pname );
+
+	(*subfolder).foldername = malloc( sizeof( char ) * namelen + 1 );
+
+	if( (*subfolder).foldername != NULL )
+	{
+		/*set foldername*/
+		strcpy( (*subfolder).foldername, pname );
+	}
+	else
+		print_msg( "memory for foldername could not be allocated", ppath, 2 );
+
 	/*set folderlayer*/
 	(*subfolder).folderlayer = (*rootfolder).folderlayer + 1;
-	/*set foldername*/
-	(*subfolder).foldername = pname;
 	/*set folderpath*/
 	(*subfolder).folderpath = ppath;
 	/*set rootpath*/
@@ -270,8 +283,21 @@ void set_folder_attributes( folderst *subfolder, folderst *rootfolder, char *pna
 
 void set_file_attributes( filest *pfile, char *pname, struct stat *pfattributes, char *ppath, folderst *rootfolder )
 {
-	/*set filename*/
-	(*pfile).filename = pname;
+	/*variables*/
+	size_t namelen = 0;
+
+	namelen = strlen( pname );
+
+	(*pfile).filename = malloc( sizeof(char) * namelen + 1 );
+
+	if( (*pfile).filename != NULL )
+	{
+		/*set filename*/
+		strcpy( (*pfile).filename, pname );
+	}
+	else
+		print_msg( "memory for filename could not be allocated", ppath, 2 );
+
 	/*get filesize*/
 	(*pfile).filesize = get_file_size( pfattributes );
 	/*get changedate*/
@@ -351,15 +377,15 @@ int read_folder( char *ppath, folderst *pfolder )
 			}
 
 			(*pfolder).empty = check_is_empty( pfolder );
-		}		
-		closedir( curdir );
+		}
 	}
 	else
 	{
 		print_msg ( "error opening folder", ppath, 2 );
 		return -1;
 	}
-	return 1;		
+	closedir( curdir );
+	return 1;
 }
 
 char *remove_trailing_slash( char *ppath )
