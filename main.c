@@ -136,7 +136,7 @@ void append_files_to_treeview( GtkTreeStore *pstore, GtkTreeIter *piter, GtkTree
 		/*set current entry of the treeview*/
 		gtk_tree_store_set( pstore, piter,
 				PIC_COLUMN, picon,
-				NAME_COLUMN, (gchar*) plist[i].filename,
+				NAME_COLUMN, plist[i].filename,
 				FSIZE_COLUMN, plist[i].filesize,
 				CHDATE_COLUMN, plist[i].str_changedate,
 				EQUAL_COLUMN, "1", -1 );
