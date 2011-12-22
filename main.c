@@ -31,11 +31,12 @@ enum
 };
 
 /*struct for callback function "button_open_clicked"*/
-typedef struct
+typedef struct btn_open
 {
 	GtkWindow *parent;
 	GtkTreeStore *store;
 	GtkEntry *entry;
+	folderst *folder;
 } btn_open_data;
 
 void add_menubar_to_main_win( GtkWidget *playout )
@@ -256,6 +257,8 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 	        add_folder_to_treeview( &folder, data->store, NULL );
 	        /*set text to entry*/
 	        gtk_entry_set_text( GTK_ENTRY(data->entry), folder_path );
+	        /*save address of read folder*/
+	        data->folder = &folder;
 	     }
 
 	     /*free the string*/
@@ -288,7 +291,6 @@ void start_gtk_gui( void )
 	GtkWidget *btn_sync;
 	GtkWidget *btn_close;
 	GtkWidget *sync_layout;
-
 
 	/*initialize main window*/
 	main_win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
