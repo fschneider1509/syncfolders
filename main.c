@@ -7,9 +7,7 @@
 #include <gtk/gtk.h>
 
 /* to do:
- * - get the right icons
- * - change folder icon when its opened
- * - write sync dialog
+  * - write sync dialog
  * - write "README"
  * - pack gui stuff into own module
  */
