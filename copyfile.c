@@ -104,7 +104,7 @@ int copy_file_on_disk( filest *srcfile, filest *destfile )
 			
 	}
 	else
-		print_msg( "filde could not be deleted", (*destfile).filepath, 2 );
+		print_msg( "file could not be deleted", (*destfile).filepath, 2 );
 		
 	return -1;
 }

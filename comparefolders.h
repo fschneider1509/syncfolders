@@ -7,6 +7,7 @@
 #include "consoleprint.h"
 #include "copyfile.h"
 #include "copyfolder.h"
+#include "gtk_gui.h"
 
 /*prototypes*/
 extern int find_folder_in_list( folderst *, folderst* );
