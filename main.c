@@ -82,8 +82,6 @@ void add_menubar_to_main_win( GtkWidget *playout )
 
 	/*pack menu*/
 	gtk_box_pack_start( GTK_BOX(playout), menubar, FALSE, FALSE, 0 );
-
-
 }
 
 GdkPixbuf *get_icon( gint type )
@@ -228,6 +226,61 @@ GtkTreeStore *add_folder_view( GtkWidget *playout, GtkWidget **ptview )
 	return filetree;
 }
 
+int show_sync_window( GtkWindow *parent )
+{
+	/*variables*/
+	GtkWidget *sync_win;
+	GtkWidget *main_layout;
+	GtkWidget *src_layout;
+	GtkWidget *dest_layout;
+	GtkWidget *lblcopy;
+	GtkWidget *lblsrc_path;
+	GtkWidget *lblsrc_size;
+	GtkWidget *lblsrc_changedate;
+	GtkWidget *lbldest_path;
+	GtkWidget *lbldest_size;
+	GtkWidget *lbldest_changedate;
+	GtkWidget *lblto;
+	GtkWidget *srcframe;
+	GtkWidget *destframe;
+
+	/*set window attributes*/
+	sync_win = gtk_window_new( GTK_WINDOW_TOPLEVEL );
+	gtk_window_set_title( GTK_WINDOW(sync_win), "Kopieren..." );
+	gtk_window_set_modal( GTK_WINDOW(sync_win), TRUE );
+	gtk_window_set_resizable( GTK_WINDOW(sync_win), FALSE );
+	gtk_window_set_default_size( GTK_WINDOW(sync_win), 850, ( HEIGHT / 2 ) );
+
+	/*define layout*/
+	main_layout = gtk_vbox_new( TRUE, 3 );
+	src_layout = gtk_vbox_new( TRUE, 0 );
+	//dest_layout = gtk_
+
+	gtk_container_add( GTK_CONTAINER(sync_win), main_layout );
+
+	/*define labels*/
+	lblcopy = gtk_label_new( "Kopiere:" );
+	lblto = gtk_label_new( "nach" );
+	lblsrc_path = gtk_label_new( "Quellpfad:" );
+	lblsrc_size = gtk_label_new( "Bytes:" );
+	lblsrc_changedate = gtk_label_new( "Changedate:" );
+	lbldest_path = gtk_label_new( "Zielpfad:" );
+	lbldest_size = gtk_label_new( "Bytes:" );
+	lbldest_changedate = gtk_label_new( "Changedate:" );
+
+	/*define frames*/
+	srcframe = gtk_frame_new( "Quelle" );
+	destframe = gtk_frame_new( "Ziel" );
+
+	/*set frames on layout*/
+	gtk_box_pack_start( GTK_BOX(main_layout), srcframe, TRUE, TRUE, 5 );
+	gtk_box_pack_start( GTK_BOX(main_layout), destframe, TRUE, TRUE, 5 );
+
+	gtk_widget_show_all( sync_win );
+
+	return 1;
+}
+
 /*callback functions*/
 void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 {
@@ -271,6 +324,11 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 	gtk_widget_destroy (fileopen);
 }
 
+void button_sync_clicked( GtkButton *pbtn, gpointer data )
+{
+	show_sync_window( NULL );
+}
+
 void start_gtk_gui( void )
 {
 	/*variables*/
@@ -294,9 +352,11 @@ void start_gtk_gui( void )
 	GtkWidget *btn_sync;
 	GtkWidget *btn_close;
 	GtkWidget *sync_layout;
+	folderst *folder_a;
+	folderst *folder_b;
 
 	/*initialize main window*/
-	main_win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	main_win = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	/*initialize layout*/
 	menubar_layout = gtk_vbox_new( FALSE, 0 );
 	layout_a = gtk_vbox_new( FALSE, 3 );
@@ -372,17 +432,19 @@ void start_gtk_gui( void )
 	btn_data_b->parent = GTK_WINDOW( main_win );
 	btn_data_b->store = viewright;
 	btn_data_b->entry = GTK_ENTRY(entry_b);
+	btn_data_b->folder = NULL;
 
 	/*add signals to buttons*/
 	g_signal_connect( btn_open_a, "clicked", G_CALLBACK(button_open_clicked), btn_data_a );
 	g_signal_connect( btn_open_b, "clicked", G_CALLBACK(button_open_clicked), btn_data_b );
+	g_signal_connect( btn_sync, "clicked", G_CALLBACK(button_sync_clicked), NULL );
 	g_signal_connect( btn_close, "clicked", G_CALLBACK(gtk_main_quit), NULL );
 	g_signal_connect (main_win, "destroy", G_CALLBACK(gtk_main_quit), NULL );
 
 	gtk_widget_show_all (main_win);
 }
 
-int main (int argc, char *argv[])
+int main( int argc, char *argv[] )
 {
 	gtk_init (&argc, &argv);
 
