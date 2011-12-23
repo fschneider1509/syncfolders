@@ -13,7 +13,7 @@ comparefolders: comparefolders.c
 	gcc -W -g comparefolders.c -c `pkg-config --libs --cflags gtk+-2.0`
 
 copyfile: copyfile.c
-	gcc -W -g copyfile.c -c
+	gcc -W -g copyfile.c -c `pkg-config --libs --cflags gtk+-2.0`
 	
 copyfolder: copyfolder.c
 	gcc -W -g copyfolder.c -c

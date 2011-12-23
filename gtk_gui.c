@@ -1,6 +1,8 @@
 /*includes*/
 #include "gtk_gui.h"
 
+
+
 void add_menubar_to_main_win( GtkWidget *playout )
 {
 	/*variables*/
@@ -188,7 +190,7 @@ GtkTreeStore *add_folder_view( GtkWidget *playout, GtkWidget **ptview )
 	return filetree;
 }
 
-int show_sync_window( GtkWindow *parent )
+int show_sync_window( btn_sync_data *pwidgets )
 {
 	/*variables*/
 	GtkWidget *sync_win;
@@ -298,8 +300,13 @@ int show_sync_window( GtkWindow *parent )
 	gtk_box_pack_start( GTK_BOX(dest_layout_c), lbldest_changedate, FALSE, FALSE, 3 );
 	gtk_box_pack_start( GTK_BOX(dest_layout_c), entdest_changedate, TRUE, TRUE, 0 );
 
-
-
+	/*save widgets for manipulating*/
+	pwidgets->src_path = GTK_ENTRY(entsrc_path);
+	pwidgets->src_size = GTK_ENTRY(entsrc_size);
+	pwidgets->src_changedate = GTK_ENTRY(entsrc_changedate);
+	pwidgets->dest_path = GTK_ENTRY(entdest_path);
+	pwidgets->dest_size = GTK_ENTRY(entdest_size);
+	pwidgets->dest_changedate = GTK_ENTRY(entdest_changedate);
 
 	gtk_widget_show_all( sync_win );
 
@@ -312,10 +319,6 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 	/*variables*/
 	GtkWidget *fileopen;
 	char *folder_path = NULL;
-	folderst folder;
-
-	if( data->folder != NULL )
-		free_sub_folder_list( data->folder );
 
 	/*create fileopen dialog*/
 	fileopen = gtk_file_chooser_dialog_new( "Verzeichnis öffnen", GTK_WINDOW(data->parent)
@@ -327,20 +330,18 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 	    folder_path = gtk_file_chooser_get_filename ( GTK_FILE_CHOOSER (fileopen) );
 
 	    /*read folder a*/
-	    reset_folder( &folder );
-	    set_root_folder_attributes( &folder, folder_path );
-	    read_folder( folder_path , &folder );
+	    reset_folder( data->folder );
+	    set_root_folder_attributes( data->folder, folder_path );
+	    read_folder( folder_path , data->folder );
 
 	    /*add folder to treeview; clear before adding*/
 	    if( GTK_IS_TREE_STORE(data->store) )
 	    {
 	        gtk_tree_store_clear( data->store );
-	        add_folder_to_treeview( &folder, data->store, NULL );
+	        add_folder_to_treeview( data->folder, data->store, NULL );
 	        /*set text to entry*/
 	        gtk_entry_set_text( GTK_ENTRY(data->entry), folder_path );
-	        /*save address of read folder*/
-	        data->folder = &folder;
-	     }
+	    }
 
 	     /*free the string*/
 	     g_free (folder_path);
@@ -349,9 +350,34 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 	gtk_widget_destroy (fileopen);
 }
 
-void button_sync_clicked( GtkButton *pbtn, gpointer data )
+void update_sync_window( filest *src, filest *dest, btn_sync_data *pwidgets )
 {
-	show_sync_window( NULL );
+	/*variables*/
+	char src_size[100];
+	char dest_size[100];
+
+	sprintf( src_size, "%d", src->filesize );
+	sprintf( dest_size, "%d", dest->filesize );
+
+	/*set text of src entries*/
+	gtk_entry_set_text( pwidgets->src_path, src->filepath );
+	gtk_entry_set_text( pwidgets->src_size, src_size );
+	gtk_entry_set_text( pwidgets->src_changedate, src->str_changedate );
+
+	gtk_entry_set_text( pwidgets->dest_path, dest->filepath );
+	gtk_entry_set_text( pwidgets->dest_size, dest_size );
+	gtk_entry_set_text( pwidgets->dest_changedate, dest->str_changedate );
+}
+
+void button_sync_clicked( GtkButton *pbtn, sync_folders *param )
+{
+	btn_sync_data widgets;
+
+	/*show sync window*/
+	show_sync_window( &widgets );
+
+	/*start comparing*/
+	//init_compare( param->a->folder, param->b->folder, &widgets );
 }
 
 void start_gtk_gui( void )
@@ -377,8 +403,7 @@ void start_gtk_gui( void )
 	GtkWidget *btn_sync;
 	GtkWidget *btn_close;
 	GtkWidget *sync_layout;
-	folderst *folder_a;
-	folderst *folder_b;
+	sync_folders *sync_fl;
 
 	/*initialize main window*/
 	main_win = gtk_window_new( GTK_WINDOW_TOPLEVEL );
@@ -448,21 +473,27 @@ void start_gtk_gui( void )
 	/*alloc memory*/
 	btn_data_a = g_slice_new( btn_open_data );
 	btn_data_b = g_slice_new( btn_open_data );
+	btn_data_a->folder = g_slice_new( folderst );
+	btn_data_b->folder = g_slice_new( folderst );
+	sync_fl = g_slice_new( sync_folders );
+
+	/*save button data*/
+	sync_fl->a = btn_data_a;
+	sync_fl->b = btn_data_b;
+
 	/*button a*/
 	btn_data_a->parent = GTK_WINDOW( main_win );
 	btn_data_a->store = viewleft;
 	btn_data_a->entry = GTK_ENTRY(entry_a);
-	btn_data_a->folder = NULL;
 	/*button b*/
 	btn_data_b->parent = GTK_WINDOW( main_win );
 	btn_data_b->store = viewright;
 	btn_data_b->entry = GTK_ENTRY(entry_b);
-	btn_data_b->folder = NULL;
 
 	/*add signals to buttons*/
 	g_signal_connect( btn_open_a, "clicked", G_CALLBACK(button_open_clicked), btn_data_a );
 	g_signal_connect( btn_open_b, "clicked", G_CALLBACK(button_open_clicked), btn_data_b );
-	g_signal_connect( btn_sync, "clicked", G_CALLBACK(button_sync_clicked), NULL );
+	g_signal_connect( btn_sync, "clicked", G_CALLBACK(button_sync_clicked), sync_fl );
 	g_signal_connect( btn_close, "clicked", G_CALLBACK(gtk_main_quit), NULL );
 	g_signal_connect (main_win, "destroy", G_CALLBACK(gtk_main_quit), NULL );
 

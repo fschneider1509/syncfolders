@@ -129,12 +129,26 @@ size_t get_change_date( struct stat *pattributes )
 char *get_root_folder( char *ppath )
 {
 	/*variables*/
-	char *tmpString;
+	char *tmp;
+	int pathlen;
+	char *root;
 
-	/*get last occurance of / int the string*/
-	tmpString = strrchr( ppath, '/' );
+	pathlen = strlen( ppath );
 
-	return tmpString+1;
+	tmp = malloc( sizeof(char) * pathlen + 1 );
+
+	if( tmp != NULL )
+	{
+		/*copy path to temporary string*/
+		strcpy( tmp, ppath );
+
+		/*get last occurance of / int the string*/
+		root = strrchr( tmp, '/' );
+
+		return root+1;
+	}
+	else
+		return NULL;
 }
 
 int append_sub_folder_to_list( folderst *pfolder, folderst *psubfolder )
@@ -248,10 +262,21 @@ int check_is_empty( folderst *pfolder )
 
 void set_root_folder_attributes( folderst *pfolder, char *ppath )
 {
+	/*variables*/
+	size_t pathlen;
+
+	pathlen = strlen( ppath );
+
+	(*pfolder).folderpath = malloc( sizeof( char ) * pathlen + 1 );
+
+	if( (*pfolder).folderpath != NULL )
+		/*set folderpath*/
+		strcpy(	(*pfolder).folderpath, ppath );
+	else
+		print_msg( "could not allocate memory for path", ppath, 2 );
+
 	/*set foldername*/
 	(*pfolder).foldername = get_root_folder( ppath );
-	/*set folderpath*/
-	(*pfolder).folderpath = ppath;
 	/*set root folder*/
 	(*pfolder).rootpath = get_root_folder( ppath );
 }

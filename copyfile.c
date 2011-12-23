@@ -109,9 +109,11 @@ int copy_file_on_disk( filest *srcfile, filest *destfile )
 	return -1;
 }
 
-void start_copy( filest *pfile_a, filest *pfile_b )
+void start_copy( filest *pfile_a, filest *pfile_b, btn_sync_data *pwidgets )
 {
-	print_copy_activity( pfile_a, pfile_b );
+	/*update sync window*/
+	update_sync_window( pfile_a, pfile_b, pwidgets );
+
 	if( copy_file_on_disk( pfile_a, pfile_b ) == 1 )
 		print_ok();
 	else
