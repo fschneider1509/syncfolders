@@ -236,6 +236,9 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 	char *folder_path = NULL;
 	folderst folder;
 
+	if( data->folder != NULL )
+		free_sub_folder_list( data->folder );
+
 	/*create fileopen dialog*/
 	fileopen = gtk_file_chooser_dialog_new( "Verzeichnis öffnen", GTK_WINDOW(data->parent)
 			, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL );
@@ -364,6 +367,7 @@ void start_gtk_gui( void )
 	btn_data_a->parent = GTK_WINDOW( main_win );
 	btn_data_a->store = viewleft;
 	btn_data_a->entry = GTK_ENTRY(entry_a);
+	btn_data_a->folder = NULL;
 	/*button b*/
 	btn_data_b->parent = GTK_WINDOW( main_win );
 	btn_data_b->store = viewright;
