@@ -233,48 +233,106 @@ int show_sync_window( GtkWindow *parent )
 	GtkWidget *main_layout;
 	GtkWidget *src_layout;
 	GtkWidget *dest_layout;
-	GtkWidget *lblcopy;
 	GtkWidget *lblsrc_path;
 	GtkWidget *lblsrc_size;
 	GtkWidget *lblsrc_changedate;
 	GtkWidget *lbldest_path;
 	GtkWidget *lbldest_size;
 	GtkWidget *lbldest_changedate;
-	GtkWidget *lblto;
+	GtkWidget *entsrc_path;
+	GtkWidget *entsrc_size;
+	GtkWidget *entsrc_changedate;
+	GtkWidget *entdest_path;
+	GtkWidget *entdest_size;
+	GtkWidget *entdest_changedate;
 	GtkWidget *srcframe;
 	GtkWidget *destframe;
+	GtkWidget *src_layout_p;
+	GtkWidget *src_layout_b;
+	GtkWidget *src_layout_c;
+	GtkWidget *dest_layout_p;
+	GtkWidget *dest_layout_b;
+	GtkWidget *dest_layout_c;
 
 	/*set window attributes*/
 	sync_win = gtk_window_new( GTK_WINDOW_TOPLEVEL );
+	gtk_window_set_position( GTK_WINDOW(sync_win), GTK_WIN_POS_CENTER );
 	gtk_window_set_title( GTK_WINDOW(sync_win), "Kopieren..." );
 	gtk_window_set_modal( GTK_WINDOW(sync_win), TRUE );
-	gtk_window_set_resizable( GTK_WINDOW(sync_win), FALSE );
+	gtk_window_deiconify( GTK_WINDOW(sync_win) );
 	gtk_window_set_default_size( GTK_WINDOW(sync_win), 850, ( HEIGHT / 2 ) );
 
 	/*define layout*/
 	main_layout = gtk_vbox_new( TRUE, 3 );
 	src_layout = gtk_vbox_new( TRUE, 0 );
-	//dest_layout = gtk_
+	dest_layout = gtk_vbox_new( TRUE, 0 );
+	src_layout_p = gtk_hbox_new( FALSE, 0 );
+	src_layout_b = gtk_hbox_new( FALSE, 0 );
+	src_layout_c = gtk_hbox_new( FALSE, 0 );
+	dest_layout_p = gtk_hbox_new( FALSE, 0 );
+	dest_layout_b = gtk_hbox_new( FALSE, 0 );
+	dest_layout_c = gtk_hbox_new( FALSE, 0 );
 
 	gtk_container_add( GTK_CONTAINER(sync_win), main_layout );
 
 	/*define labels*/
-	lblcopy = gtk_label_new( "Kopiere:" );
-	lblto = gtk_label_new( "nach" );
-	lblsrc_path = gtk_label_new( "Quellpfad:" );
-	lblsrc_size = gtk_label_new( "Bytes:" );
+	lblsrc_path = gtk_label_new( "Quelldatei:   " );
+	lblsrc_size = gtk_label_new( "Bytes:          " );
 	lblsrc_changedate = gtk_label_new( "Changedate:" );
-	lbldest_path = gtk_label_new( "Zielpfad:" );
-	lbldest_size = gtk_label_new( "Bytes:" );
+	lbldest_path = gtk_label_new( "Zieldatei:      " );
+	lbldest_size = gtk_label_new( "Bytes:          " );
 	lbldest_changedate = gtk_label_new( "Changedate:" );
+	entsrc_path = gtk_entry_new();
+	gtk_entry_set_editable( GTK_ENTRY(entsrc_path), FALSE );
+	entsrc_size = gtk_entry_new();
+	gtk_entry_set_editable( GTK_ENTRY(entsrc_size), FALSE );
+	entsrc_changedate = gtk_entry_new();
+	gtk_entry_set_editable( GTK_ENTRY(entsrc_changedate), FALSE );
+	entdest_path = gtk_entry_new();
+	gtk_entry_set_editable( GTK_ENTRY(entdest_path), FALSE );
+	entdest_size = gtk_entry_new();
+	gtk_entry_set_editable( GTK_ENTRY(entdest_size), FALSE );
+	entdest_changedate = gtk_entry_new();
+	gtk_entry_set_editable( GTK_ENTRY(entdest_changedate), FALSE );
 
 	/*define frames*/
 	srcframe = gtk_frame_new( "Quelle" );
 	destframe = gtk_frame_new( "Ziel" );
 
 	/*set frames on layout*/
-	gtk_box_pack_start( GTK_BOX(main_layout), srcframe, TRUE, TRUE, 5 );
+	gtk_box_pack_start( GTK_BOX(main_layout), srcframe, TRUE, TRUE, 3 );
 	gtk_box_pack_start( GTK_BOX(main_layout), destframe, TRUE, TRUE, 5 );
+
+	/*add layouts to frames*/
+	gtk_container_add( GTK_CONTAINER(srcframe), src_layout );
+	gtk_container_add( GTK_CONTAINER(destframe), dest_layout );
+
+	/*pack sub-layouts*/
+	gtk_box_pack_start( GTK_BOX(src_layout), src_layout_p, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(src_layout), src_layout_b, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(src_layout), src_layout_c, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(dest_layout), dest_layout_p, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(dest_layout), dest_layout_b, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(dest_layout), dest_layout_c, TRUE, TRUE, 0 );
+
+	/*pack labes and entries*/
+	/*src*/
+	gtk_box_pack_start( GTK_BOX(src_layout_p), lblsrc_path, FALSE, FALSE, 3 );
+	gtk_box_pack_start( GTK_BOX(src_layout_p), entsrc_path, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(src_layout_b), lblsrc_size, FALSE, FALSE, 3 );
+	gtk_box_pack_start( GTK_BOX(src_layout_b), entsrc_size, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(src_layout_c), lblsrc_changedate, FALSE, FALSE, 3 );
+	gtk_box_pack_start( GTK_BOX(src_layout_c), entsrc_changedate, TRUE, TRUE, 0 );
+	/*dest*/
+	gtk_box_pack_start( GTK_BOX(dest_layout_p), lbldest_path, FALSE, FALSE, 3 );
+	gtk_box_pack_start( GTK_BOX(dest_layout_p), entdest_path, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(dest_layout_b), lbldest_size, FALSE, FALSE, 3 );
+	gtk_box_pack_start( GTK_BOX(dest_layout_b), entdest_size, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(dest_layout_c), lbldest_changedate, FALSE, FALSE, 3 );
+	gtk_box_pack_start( GTK_BOX(dest_layout_c), entdest_changedate, TRUE, TRUE, 0 );
+
+
+
 
 	gtk_widget_show_all( sync_win );
 
