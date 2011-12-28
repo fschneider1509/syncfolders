@@ -109,8 +109,14 @@ int copy_file_on_disk( filest *srcfile, filest *destfile )
 	return -1;
 }
 
-void start_copy( filest *pfile_a, filest *pfile_b )
+void start_copy( filest *pfile_a, filest *pfile_b, GtkProgressBar *pbar )
 {
+	/*set text in progressbar*/
+	gtk_progress_bar_set_pulse_step( pbar, 0.2 );
+	gtk_progress_bar_pulse( pbar );
+	gtk_progress_bar_set_text( pbar, (*pfile_a).filepath );
+	gtk_progress_bar_pulse( pbar );
+
 	if( copy_file_on_disk( pfile_a, pfile_b ) == 1 )
 		print_ok();
 	else

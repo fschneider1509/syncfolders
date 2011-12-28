@@ -227,12 +227,25 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 	gtk_widget_destroy (fileopen);
 }
 
+void test( GtkProgressBar *tmp )
+{
+
+}
+
 void button_sync_clicked( GtkButton *pbtn, sync_folders *param )
 {
-	btn_sync_data widgets;
+	/*Code zum testen der Progressbar!!*/
+	int i = 0;
+	char tmp[10];
 
-	/*start comparing*/
-	//init_compare( param->a->folder, param->b->folder, &widgets );
+	for( i = 0; i <= 100; i++ )
+	{
+		gtk_progress_bar_pulse( param->bar );
+		sprintf( tmp, "%d", i );
+		gtk_progress_bar_set_text( param->bar, tmp );
+		sleep( 1 );
+	}
+
 }
 
 void start_gtk_gui( void )
@@ -293,6 +306,8 @@ void start_gtk_gui( void )
 	
 	/*init progressbar*/
 	progressbar = gtk_progress_bar_new();
+	gtk_progress_bar_pulse( GTK_PROGRESS_BAR(progressbar) );
+	//gtk_progress_bar_set_text( GTK_PROGRESS_BAR(progressbar), "Synchronisieren" );
 
 
 	/*add layout to main window*/
@@ -330,7 +345,7 @@ void start_gtk_gui( void )
 	/*add progressbar*/
 	gtk_box_pack_start( GTK_BOX(progress_layout), progressframe, TRUE, TRUE, 3 );
 	/*set properties of the progressbar*/
-	gtk_progress_bar_set_ellipsize( GTK_PROGRESS_BAR(progressbar), PANGO_ELLIPSIZE_MIDDLE );
+	//gtk_progress_bar_set_ellipsize( GTK_PROGRESS_BAR(progressbar), PANGO_ELLIPSIZE_MIDDLE );
 	gtk_progress_bar_set_bar_style( GTK_PROGRESS_BAR(progressbar), GTK_PROGRESS_DISCRETE );
 
 	/*add sync button*/
@@ -366,7 +381,7 @@ void start_gtk_gui( void )
 	/*add signals to buttons*/
 	g_signal_connect( btn_open_a, "clicked", G_CALLBACK(button_open_clicked), btn_data_a );
 	g_signal_connect( btn_open_b, "clicked", G_CALLBACK(button_open_clicked), btn_data_b );
-	g_signal_connect( btn_sync, "pressed", G_CALLBACK(button_sync_clicked), sync_fl );
+	g_signal_connect( btn_sync, "clicked", G_CALLBACK(button_sync_clicked), sync_fl );
 	g_signal_connect( btn_close, "clicked", G_CALLBACK(gtk_main_quit), NULL );
 	g_signal_connect (main_win, "destroy", G_CALLBACK(gtk_main_quit), NULL );
 

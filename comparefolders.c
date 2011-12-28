@@ -96,7 +96,7 @@ int copy_pathes( folderst *pfolder, char *ppath, char *proot )
 		return -1;
 }
 
-void compare_folders( folderst *pfolder_a, folderst *pfolder_b )
+void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *pbar )
 {
 	/*pfoldera is the leading folder*/
 
@@ -120,10 +120,10 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b )
 					/*do nothing*/
 					break;
 				case 1:
-					start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]) );
+					start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]), pbar );
 					break;
 				case 2:
-					start_copy( &((*pfolder_b).filelist[iposfile]), &((*pfolder_a).filelist[i]) );
+					start_copy( &((*pfolder_b).filelist[iposfile]), &((*pfolder_a).filelist[i]), pbar );
 					break;
 				case 3:
 					/*ask user*/
@@ -131,10 +131,10 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b )
 						switch( ask_user( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]) ) )
 						{
 						case 1:
-							start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]) );
+							start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]), pbar );
 							break;
 						case 2:
-							start_copy( &((*pfolder_b).filelist[iposfile]), &((*pfolder_a).filelist[i]) );
+							start_copy( &((*pfolder_b).filelist[iposfile]), &((*pfolder_a).filelist[i]), pbar );
 							break;
 						default:
 							/*do nothing*/
@@ -169,7 +169,7 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b )
 					/*create shadowfile*/
 					if( create_shadow_file( (*tmpfile).filepath ) == 1 )
 						/*copy file on disk*/
-						start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[(*pfolder_b).numfiles-1]) );
+						start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[(*pfolder_b).numfiles-1]), pbar );
 					else
 						print_msg( "file could not be copied", (*pfolder_a).filelist[i].filepath, 2 );
 				}
@@ -188,7 +188,7 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b )
 		if( iposfolder != -1 )
 		{
 			/*start recursion*/
-			compare_folders( &((*pfolder_a).folderlist[j]), &((*pfolder_b).folderlist[iposfolder]) );
+			compare_folders( &((*pfolder_a).folderlist[j]), &((*pfolder_b).folderlist[iposfolder]), pbar );
 		}
 		else
 		{
@@ -208,7 +208,7 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b )
 				{
 					copy_folder_on_disk( (*tmpfolder).folderpath );
 					/*start recursion to copy the rest of the files*/
-					compare_folders( &((*pfolder_a).folderlist[j]), &((*pfolder_b).folderlist[(*pfolder_b).numfolders-1]) );
+					compare_folders( &((*pfolder_a).folderlist[j]), &((*pfolder_b).folderlist[(*pfolder_b).numfolders-1]), pbar );
 				}
 				else
 					print_msg( "folder could not be created", (*pfolder_a).folderlist[j].rootpath, 2 );
@@ -227,14 +227,14 @@ int check_root_folders( char *ppath_a, char *ppath_b )
 		return -1;
 }
 
-void init_compare( folderst *pfolder_a, folderst *pfolder_b )
+void init_compare( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *pbar )
 {
 	if( check_root_folders( (*pfolder_a).folderpath, (*pfolder_b).folderpath ) == 1 )
 	{
 		/*pfoldera is leading*/
-		compare_folders( pfolder_a, pfolder_b );
+		compare_folders( pfolder_a, pfolder_b, pbar );
 		/*pfolderb is leading*/
-		compare_folders( pfolder_b, pfolder_a );
+		compare_folders( pfolder_b, pfolder_a, pbar );
 
 		/*free memory*/
 		if( (*pfolder_a).empty == 0 )
