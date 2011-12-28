@@ -1,8 +1,6 @@
 /*includes*/
 #include "gtk_gui.h"
 
-
-
 void add_menubar_to_main_win( GtkWidget *playout )
 {
 	/*variables*/
@@ -190,128 +188,7 @@ GtkTreeStore *add_folder_view( GtkWidget *playout, GtkWidget **ptview )
 	return filetree;
 }
 
-int show_sync_window( btn_sync_data *pwidgets )
-{
-	/*variables*/
-	GtkWidget *sync_win;
-	GtkWidget *main_layout;
-	GtkWidget *src_layout;
-	GtkWidget *dest_layout;
-	GtkWidget *lblsrc_path;
-	GtkWidget *lblsrc_size;
-	GtkWidget *lblsrc_changedate;
-	GtkWidget *lbldest_path;
-	GtkWidget *lbldest_size;
-	GtkWidget *lbldest_changedate;
-	GtkWidget *entsrc_path;
-	GtkWidget *entsrc_size;
-	GtkWidget *entsrc_changedate;
-	GtkWidget *entdest_path;
-	GtkWidget *entdest_size;
-	GtkWidget *entdest_changedate;
-	GtkWidget *srcframe;
-	GtkWidget *destframe;
-	GtkWidget *src_layout_p;
-	GtkWidget *src_layout_b;
-	GtkWidget *src_layout_c;
-	GtkWidget *dest_layout_p;
-	GtkWidget *dest_layout_b;
-	GtkWidget *dest_layout_c;
-	GdkPixbuf *icon;
-	GError *err = NULL;
 
-	/*set window attributes*/
-	sync_win = gtk_window_new( GTK_WINDOW_TOPLEVEL );
-	gtk_window_set_position( GTK_WINDOW(sync_win), GTK_WIN_POS_CENTER );
-	gtk_window_set_title( GTK_WINDOW(sync_win), "Kopieren..." );
-	gtk_window_set_modal( GTK_WINDOW(sync_win), TRUE );
-	gtk_window_deiconify( GTK_WINDOW(sync_win) );
-	gtk_window_set_default_size( GTK_WINDOW(sync_win), 850, ( HEIGHT / 2 ) );
-	/*load and set icon*/
-	icon = gdk_pixbuf_new_from_file( "logo.png", &err );
-	gtk_window_set_icon( GTK_WINDOW(sync_win), icon );
-
-	/*define layout*/
-	main_layout = gtk_vbox_new( TRUE, 3 );
-	src_layout = gtk_vbox_new( TRUE, 0 );
-	dest_layout = gtk_vbox_new( TRUE, 0 );
-	src_layout_p = gtk_hbox_new( FALSE, 0 );
-	src_layout_b = gtk_hbox_new( FALSE, 0 );
-	src_layout_c = gtk_hbox_new( FALSE, 0 );
-	dest_layout_p = gtk_hbox_new( FALSE, 0 );
-	dest_layout_b = gtk_hbox_new( FALSE, 0 );
-	dest_layout_c = gtk_hbox_new( FALSE, 0 );
-
-	gtk_container_add( GTK_CONTAINER(sync_win), main_layout );
-
-	/*define labels*/
-	lblsrc_path = gtk_label_new( "Quelldatei:   " );
-	lblsrc_size = gtk_label_new( "Bytes:          " );
-	lblsrc_changedate = gtk_label_new( "Changedate:" );
-	lbldest_path = gtk_label_new( "Zieldatei:      " );
-	lbldest_size = gtk_label_new( "Bytes:          " );
-	lbldest_changedate = gtk_label_new( "Changedate:" );
-	entsrc_path = gtk_entry_new();
-	gtk_entry_set_editable( GTK_ENTRY(entsrc_path), FALSE );
-	entsrc_size = gtk_entry_new();
-	gtk_entry_set_editable( GTK_ENTRY(entsrc_size), FALSE );
-	entsrc_changedate = gtk_entry_new();
-	gtk_entry_set_editable( GTK_ENTRY(entsrc_changedate), FALSE );
-	entdest_path = gtk_entry_new();
-	gtk_entry_set_editable( GTK_ENTRY(entdest_path), FALSE );
-	entdest_size = gtk_entry_new();
-	gtk_entry_set_editable( GTK_ENTRY(entdest_size), FALSE );
-	entdest_changedate = gtk_entry_new();
-	gtk_entry_set_editable( GTK_ENTRY(entdest_changedate), FALSE );
-
-	/*define frames*/
-	srcframe = gtk_frame_new( "Quelle" );
-	destframe = gtk_frame_new( "Ziel" );
-
-	/*set frames on layout*/
-	gtk_box_pack_start( GTK_BOX(main_layout), srcframe, TRUE, TRUE, 3 );
-	gtk_box_pack_start( GTK_BOX(main_layout), destframe, TRUE, TRUE, 5 );
-
-	/*add layouts to frames*/
-	gtk_container_add( GTK_CONTAINER(srcframe), src_layout );
-	gtk_container_add( GTK_CONTAINER(destframe), dest_layout );
-
-	/*pack sub-layouts*/
-	gtk_box_pack_start( GTK_BOX(src_layout), src_layout_p, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(src_layout), src_layout_b, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(src_layout), src_layout_c, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(dest_layout), dest_layout_p, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(dest_layout), dest_layout_b, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(dest_layout), dest_layout_c, TRUE, TRUE, 0 );
-
-	/*pack labes and entries*/
-	/*src*/
-	gtk_box_pack_start( GTK_BOX(src_layout_p), lblsrc_path, FALSE, FALSE, 3 );
-	gtk_box_pack_start( GTK_BOX(src_layout_p), entsrc_path, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(src_layout_b), lblsrc_size, FALSE, FALSE, 3 );
-	gtk_box_pack_start( GTK_BOX(src_layout_b), entsrc_size, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(src_layout_c), lblsrc_changedate, FALSE, FALSE, 3 );
-	gtk_box_pack_start( GTK_BOX(src_layout_c), entsrc_changedate, TRUE, TRUE, 0 );
-	/*dest*/
-	gtk_box_pack_start( GTK_BOX(dest_layout_p), lbldest_path, FALSE, FALSE, 3 );
-	gtk_box_pack_start( GTK_BOX(dest_layout_p), entdest_path, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(dest_layout_b), lbldest_size, FALSE, FALSE, 3 );
-	gtk_box_pack_start( GTK_BOX(dest_layout_b), entdest_size, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(dest_layout_c), lbldest_changedate, FALSE, FALSE, 3 );
-	gtk_box_pack_start( GTK_BOX(dest_layout_c), entdest_changedate, TRUE, TRUE, 0 );
-
-	/*save widgets for manipulating*/
-	pwidgets->src_path = GTK_ENTRY(entsrc_path);
-	pwidgets->src_size = GTK_ENTRY(entsrc_size);
-	pwidgets->src_changedate = GTK_ENTRY(entsrc_changedate);
-	pwidgets->dest_path = GTK_ENTRY(entdest_path);
-	pwidgets->dest_size = GTK_ENTRY(entdest_size);
-	pwidgets->dest_changedate = GTK_ENTRY(entdest_changedate);
-
-	gtk_widget_show_all( sync_win );
-
-	return 1;
-}
 
 /*callback functions*/
 void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
@@ -350,31 +227,9 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 	gtk_widget_destroy (fileopen);
 }
 
-void update_sync_window( filest *src, filest *dest, btn_sync_data *pwidgets )
-{
-	/*variables*/
-	char src_size[100];
-	char dest_size[100];
-
-	sprintf( src_size, "%d", src->filesize );
-	sprintf( dest_size, "%d", dest->filesize );
-
-	/*set text of src entries*/
-	gtk_entry_set_text( pwidgets->src_path, src->filepath );
-	gtk_entry_set_text( pwidgets->src_size, src_size );
-	gtk_entry_set_text( pwidgets->src_changedate, src->str_changedate );
-
-	gtk_entry_set_text( pwidgets->dest_path, dest->filepath );
-	gtk_entry_set_text( pwidgets->dest_size, dest_size );
-	gtk_entry_set_text( pwidgets->dest_changedate, dest->str_changedate );
-}
-
 void button_sync_clicked( GtkButton *pbtn, sync_folders *param )
 {
 	btn_sync_data widgets;
-
-	/*show sync window*/
-	show_sync_window( &widgets );
 
 	/*start comparing*/
 	//init_compare( param->a->folder, param->b->folder, &widgets );
@@ -404,6 +259,9 @@ void start_gtk_gui( void )
 	GtkWidget *btn_close;
 	GtkWidget *sync_layout;
 	sync_folders *sync_fl;
+	GtkWidget *progressbar;
+	GtkWidget *progressframe;
+	GtkWidget *progress_layout;
 
 	/*initialize main window*/
 	main_win = gtk_window_new( GTK_WINDOW_TOPLEVEL );
@@ -411,13 +269,14 @@ void start_gtk_gui( void )
 	menubar_layout = gtk_vbox_new( FALSE, 0 );
 	layout_a = gtk_vbox_new( FALSE, 3 );
 	layout_b = gtk_vbox_new( FALSE, 3 );
+	progress_layout = gtk_vbox_new( FALSE, 0 );
 	tree_layout = gtk_hbox_new( TRUE, 4 );
 	sync_layout = gtk_hbutton_box_new();
 
 	/*initialize frames*/
 	frame_a = gtk_frame_new( "Folder A" );
 	frame_b = gtk_frame_new( "Folder B" );
-
+	progressframe = gtk_frame_new( "Synchronisation" );
 
 	/*initialize buttons*/
 	btn_open_a = gtk_button_new_from_stock( GTK_STOCK_OPEN );
@@ -431,6 +290,9 @@ void start_gtk_gui( void )
 	/*set them not editable*/
 	gtk_entry_set_editable( GTK_ENTRY(entry_a), FALSE );
 	gtk_entry_set_editable( GTK_ENTRY(entry_b), FALSE );
+	
+	/*init progressbar*/
+	progressbar = gtk_progress_bar_new();
 
 
 	/*add layout to main window*/
@@ -445,6 +307,7 @@ void start_gtk_gui( void )
 
 	/*pack Layouts and frames*/
 	gtk_box_pack_start( GTK_BOX(menubar_layout), tree_layout, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(menubar_layout), progress_layout, TRUE, TRUE, 0);
 	gtk_box_pack_start( GTK_BOX(menubar_layout), sync_layout, TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(tree_layout), frame_a, TRUE, TRUE, 3 );
 	gtk_box_pack_start( GTK_BOX(tree_layout), frame_b, TRUE, TRUE, 3 );
@@ -464,10 +327,19 @@ void start_gtk_gui( void )
 	viewleft = add_folder_view( layout_a, &main_tree_a );
 	viewright = add_folder_view( layout_b, &main_tree_b );
 
+	/*add progressbar*/
+	gtk_box_pack_start( GTK_BOX(progress_layout), progressframe, TRUE, TRUE, 3 );
+	/*set properties of the progressbar*/
+	gtk_progress_bar_set_ellipsize( GTK_PROGRESS_BAR(progressbar), PANGO_ELLIPSIZE_MIDDLE );
+	gtk_progress_bar_set_bar_style( GTK_PROGRESS_BAR(progressbar), GTK_PROGRESS_DISCRETE );
+
 	/*add sync button*/
 	gtk_hbutton_box_set_layout_default( GTK_BUTTONBOX_START );
 	gtk_box_pack_start( GTK_BOX(sync_layout), btn_sync, FALSE, FALSE, 0 );
 	gtk_box_pack_start( GTK_BOX(sync_layout), btn_close, FALSE, FALSE, 0 );
+
+	/*add progressbar*/
+	gtk_container_add( GTK_CONTAINER(progressframe), progressbar );
 
 	/*set data for callback function*/
 	/*alloc memory*/
@@ -480,6 +352,7 @@ void start_gtk_gui( void )
 	/*save button data*/
 	sync_fl->a = btn_data_a;
 	sync_fl->b = btn_data_b;
+	sync_fl->bar = GTK_PROGRESS_BAR(progressbar);
 
 	/*button a*/
 	btn_data_a->parent = GTK_WINDOW( main_win );
@@ -493,7 +366,7 @@ void start_gtk_gui( void )
 	/*add signals to buttons*/
 	g_signal_connect( btn_open_a, "clicked", G_CALLBACK(button_open_clicked), btn_data_a );
 	g_signal_connect( btn_open_b, "clicked", G_CALLBACK(button_open_clicked), btn_data_b );
-	g_signal_connect( btn_sync, "clicked", G_CALLBACK(button_sync_clicked), sync_fl );
+	g_signal_connect( btn_sync, "pressed", G_CALLBACK(button_sync_clicked), sync_fl );
 	g_signal_connect( btn_close, "clicked", G_CALLBACK(gtk_main_quit), NULL );
 	g_signal_connect (main_win, "destroy", G_CALLBACK(gtk_main_quit), NULL );
 

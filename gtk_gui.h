@@ -50,6 +50,7 @@ typedef struct sync_data
 {
 	btn_open_data *a;
 	btn_open_data *b;
+	GtkProgressBar *bar;
 } sync_folders;
 
 /*prototypes*/
