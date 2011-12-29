@@ -227,11 +227,6 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 	gtk_widget_destroy (fileopen);
 }
 
-void test( GtkProgressBar *tmp )
-{
-
-}
-
 void button_sync_clicked( GtkButton *pbtn, sync_folders *param )
 {
 	/*Code zum testen der Progressbar!!*/
@@ -243,7 +238,6 @@ void button_sync_clicked( GtkButton *pbtn, sync_folders *param )
 		gtk_progress_bar_pulse( param->bar );
 		sprintf( tmp, "%d", i );
 		gtk_progress_bar_set_text( param->bar, tmp );
-		sleep( 1 );
 	}
 
 }
