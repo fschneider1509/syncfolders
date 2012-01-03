@@ -24,5 +24,6 @@ extern int compare_files( filest*, filest* );
 extern void compare_folders( folderst*, folderst*, GtkProgressBar* );
 extern int check_root_folders( char*, char* );
 extern gpointer init_compare( sync_folders* );
+extern void thread_wrapper_msg( thread_wrap* );
 
 #endif /*COMPAREFOLDERS_H*/

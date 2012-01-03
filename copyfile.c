@@ -12,7 +12,8 @@ int set_physical_change_date( time_t *pdate, filest *pfile )
 	if( utime( (*pfile).filepath, &newtime ) != 0 )
 	{
 		/*change time could not be changed*/
-		print_msg( "change time could not be changed", (*pfile).filepath, 2 );
+		/*print_msg( "change time could not be changed", (*pfile).filepath, 2 );*/
+		show_msg_dlg( "Änderungsdatum konnte nicht gesetzt werden", (*pfile).filepath, 2, NULL );
 		return -1;
 	}
 	/*set changedate in struct*/
@@ -97,14 +98,16 @@ int copy_file_on_disk( filest *srcfile, filest *destfile )
 					return -1;
 			}
 			else
-				print_msg( "file could not be created", (*srcfile).filepath, 2 );
+				/*print_msg( "file could not be created", (*srcfile).filepath, 2 );*/
+				show_msg_dlg( "Datei konnte nicht angelegt werden", (*srcfile).filepath, 2, NULL );
 		}
 		else
-			print_msg( "file could not be opened", (*srcfile).filepath, 2 );
-			
+			/*print_msg( "file could not be opened", (*srcfile).filepath, 2 );*/
+			show_msg_dlg( "Datei konnte nicht geöffnet werden.", (*srcfile).filepath, 2, NULL );
 	}
 	else
-		print_msg( "file could not be deleted", (*destfile).filepath, 2 );
+		/*print_msg( "file could not be deleted", (*destfile).filepath, 2 );*/
+		show_msg_dlg( "Datei konnte nicht gelöscht werden", (*destfile).filepath, 2, NULL );
 		
 	return -1;
 }

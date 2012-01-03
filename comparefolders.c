@@ -1,6 +1,12 @@
 /*includes*/
 #include "comparefolders.h"
 
+void thread_wrapper_msg( thread_wrap *pdata )
+{
+	/*show the that the copy process is ready*/
+	show_msg_dlg( pdata->msg, pdata->add, pdata->type, pdata->data->parent );
+}
+
 int find_folder_in_list( folderst *pdestfolder, folderst *psearchfolder )
 {
 	/*variables*/
@@ -149,8 +155,6 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *
 			 *    of the current folder
 			 */
 
-			/*make a copy of the current file form foldera*/
-			//tmpfile = (*pfolder_a).filelist[i];
 			tmpfile = malloc( sizeof( (*pfolder_a).filelist[i] ) * 1 );
 
 			if( tmpfile != NULL )
@@ -168,7 +172,9 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *
 						/*copy file on disk*/
 						start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[(*pfolder_b).numfiles-1]), pbar );
 					else
+					{
 						print_msg( "file could not be copied", (*pfolder_a).filelist[i].filepath, 2 );
+					}
 				}
 			}
 			else
@@ -224,12 +230,6 @@ int check_root_folders( char *ppath_a, char *ppath_b )
 		return -1;
 }
 
-void thread_wrapper_msg( thread_wrap *pdata )
-{
-	/*show the that the copy process is ready*/
-	show_msg_dlg( pdata->msg, pdata->add, pdata->type, pdata->data->parent );
-}
-
 gpointer init_compare( sync_folders *pdata )
 {
 	/*variables*/
@@ -244,7 +244,7 @@ gpointer init_compare( sync_folders *pdata )
 		/*pfoldera is leading*/
 		compare_folders( pdata->a->folder, pdata->b->folder, pdata->bar );
 		/*pfolderb is leading*/
-		compare_folders( pdata->b->folder, pdata->a->folder, pdata->bar );
+		//compare_folders( pdata->b->folder, pdata->a->folder, pdata->bar );
 
 		/*free memory*/
 		if( pdata->a->folder->empty == 0 )
@@ -265,8 +265,10 @@ gpointer init_compare( sync_folders *pdata )
 		thread_data->type = 2;
 	}
 
+	/*set action after end of the thread*/
 	g_idle_add( thread_wrapper_msg, thread_data );
 
+	g_slice_free( thread_wrap, thread_data );
 	return NULL;
 }
 

@@ -164,7 +164,8 @@ int append_sub_folder_to_list( folderst *pfolder, folderst *psubfolder )
 	}
 	else
 	{
-		print_msg( "appending to list failed", pfolder->foldername, 2 );
+		/*print_msg( "appending to list failed", pfolder->foldername, 2 );*/
+		show_msg_dlg( "Ordner konnte nicht an Liste angehängt werden:", pfolder->foldername, 2, NULL );
 		return -1;
 	}	
 }
@@ -182,7 +183,8 @@ int append_file_to_list( folderst *pfolder, filest *pfile )
 	}
 	else
 	{
-		print_msg( "appending to list failed", pfolder->foldername, 2 );
+		/*print_msg( "appending to list failed", pfolder->foldername, 2 );*/
+		show_msg_dlg( "Datei konnte nicht an Liste angehängt werden:", pfolder->foldername, 2, NULL );
 		return -1;
 	}	
 }
@@ -273,7 +275,8 @@ void set_root_folder_attributes( folderst *pfolder, char *ppath )
 		/*set folderpath*/
 		strcpy(	pfolder->folderpath, ppath );
 	else
-		print_msg( "could not allocate memory for path", ppath, 2 );
+		/*print_msg( "could not allocate memory for path", ppath, 2 );*/
+		show_msg_dlg( "Speicher für Pfad konnte nicht allokiert werden", ppath, 2, NULL );
 
 	/*set foldername*/
 	pfolder->foldername = get_root_folder( ppath );
@@ -296,7 +299,8 @@ void set_folder_attributes( folderst *subfolder, folderst *rootfolder, char *pna
 		strcpy( (*subfolder).foldername, pname );
 	}
 	else
-		print_msg( "memory for foldername could not be allocated", ppath, 2 );
+		/*print_msg( "memory for foldername could not be allocated", ppath, 2 );*/
+		show_msg_dlg( "Speicher für Ordnername konnte nicht allokiert werden", ppath, 2, NULL );
 
 	/*set folderlayer*/
 	(*subfolder).folderlayer = (*rootfolder).folderlayer + 1;
@@ -321,7 +325,8 @@ void set_file_attributes( filest *pfile, char *pname, struct stat *pfattributes,
 		strcpy( (*pfile).filename, pname );
 	}
 	else
-		print_msg( "memory for filename could not be allocated", ppath, 2 );
+		/*print_msg( "memory for filename could not be allocated", ppath, 2 );*/
+		show_msg_dlg( "Speicher für Dateipfad konnte nicht allokiert werden:", ppath, 2, NULL );
 
 	/*get filesize*/
 	(*pfile).filesize = get_file_size( pfattributes );
@@ -392,13 +397,15 @@ int read_folder( char *ppath, folderst *pfolder )
 						/*do nothing, because it's a hidden type folder*/
 						break;
 					default:
-						print_msg ( "unknown file", curfl, 2 );
+						/*print_msg ( "unknown file", curfl, 2 );*/
+						show_msg_dlg( "Unbekannter Dateityp:", curfl, 2, NULL );
 						break;
 				}
 			}
 			else
 			{
-				print_msg( "attributes could not be read", curfl, 2 );
+				/*print_msg( "attributes could not be read", curfl, 2 );*/
+				show_msg_dlg( "Attribute konnten nicht gelesen werden:", curfl, 1, NULL );
 			}
 
 			(*pfolder).empty = check_is_empty( pfolder );
@@ -406,7 +413,8 @@ int read_folder( char *ppath, folderst *pfolder )
 	}
 	else
 	{
-		print_msg ( "error opening folder", ppath, 2 );
+		/*print_msg ( "error opening folder", ppath, 2 );*/
+		show_msg_dlg( "Ordner konnte nicht geöffnet werden:", ppath, 2, NULL );
 		return -1;
 	}
 	closedir( curdir );
