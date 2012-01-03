@@ -63,41 +63,29 @@ void add_menubar_to_main_win( GtkWidget *playout )
 	/*variables*/
 	GtkWidget *menubar; /*menu bar*/
 	GtkWidget *file_menu; /*file menu*/
-	GtkWidget *sync_menu; /*sync menu*/
 	GtkWidget *file_top; /*top entry*/
-	GtkWidget *sync_top; /*top entry*/
-	GtkWidget *sync_entry; /*menu entry for syncing*/
+
 	GtkWidget *exit_entry; /*menu entry for exit application*/
 
 	/*initialize menubar*/
 	menubar = gtk_menu_bar_new();
 	/*initialize menus*/
 	file_menu = gtk_menu_new();
-	sync_menu = gtk_menu_new();
 
 	/*set menu labels*/
 	/*file menu*/
 	file_top = gtk_menu_item_new_with_mnemonic( "_Datei" );
 	exit_entry = gtk_image_menu_item_new_from_stock( GTK_STOCK_QUIT, NULL );
-	/*sync menu*/
-	sync_top = gtk_menu_item_new_with_mnemonic( "_Sync" );
-	sync_entry = gtk_image_menu_item_new_from_stock( GTK_STOCK_COPY, NULL );
 
 	/*add menus*/
 	/*file menu*/
 	gtk_menu_item_set_submenu( GTK_MENU_ITEM(file_top), file_menu );
 	gtk_menu_shell_append( GTK_MENU_SHELL(file_menu), exit_entry );
-	/*sync menu*/
-	gtk_menu_item_set_submenu( GTK_MENU_ITEM(sync_top), sync_menu );
-	gtk_menu_shell_append( GTK_MENU_SHELL(sync_menu), sync_entry );
 
 	gtk_menu_shell_append( GTK_MENU_SHELL(menubar), file_top );
-	gtk_menu_shell_append( GTK_MENU_SHELL(menubar), sync_top );
-
 
 	/*add bindings to the menu entries*/
 	 g_signal_connect( G_OBJECT(exit_entry), "activate", G_CALLBACK(gtk_main_quit), NULL );
-
 
 	/*pack menu*/
 	gtk_box_pack_start( GTK_BOX(playout), menubar, FALSE, FALSE, 0 );
