@@ -4,15 +4,15 @@
 /*functions*/
 void reset_folder( folderst *pfolder )
 {
-	(*pfolder).foldername = NULL;
-	(*pfolder).folderpath = NULL;
-	(*pfolder).rootpath = NULL;
-	(*pfolder).numfolders = 0;
-	(*pfolder).numfiles = 0;
-	(*pfolder).folderlayer = 0;
-	(*pfolder).folderlist = NULL;
-	(*pfolder).filelist = NULL;
-	(*pfolder).empty = 1;
+	pfolder->foldername = NULL;
+	pfolder->folderpath = NULL;
+	pfolder->rootpath = NULL;
+	pfolder->numfolders = 0;
+	pfolder->numfiles = 0;
+	pfolder->folderlayer = 0;
+	pfolder->folderlist = NULL;
+	pfolder->filelist = NULL;
+	pfolder->empty = 1;
 }
 
 void reset_file( filest *pfile )
@@ -154,12 +154,12 @@ char *get_root_folder( char *ppath )
 int append_sub_folder_to_list( folderst *pfolder, folderst *psubfolder )
 {
 	/*allocate memory for a new folder entry in the list*/
-	(*pfolder).folderlist = realloc( (*pfolder).folderlist, sizeof( folderst ) * ((*pfolder).numfolders + 1) );
+	pfolder->folderlist = realloc( pfolder->folderlist, sizeof( folderst ) * (pfolder->numfolders + 1) );
 
-	if( (*pfolder).folderlist != NULL )
+	if( pfolder->folderlist != NULL )
 	{
-		(*pfolder).folderlist[(*pfolder).numfolders] =  *psubfolder;
-		(*pfolder).numfolders++;
+		pfolder->folderlist[pfolder->numfolders] =  *psubfolder;
+		pfolder->numfolders++;
 		return 1;
 	}
 	else
@@ -172,12 +172,12 @@ int append_sub_folder_to_list( folderst *pfolder, folderst *psubfolder )
 int append_file_to_list( folderst *pfolder, filest *pfile )
 {
 	/*allocate memory for the entry in the list*/
-	(*pfolder).filelist = realloc( (*pfolder).filelist, sizeof( filest ) * ((*pfolder).numfiles + 1) );
+	pfolder->filelist = realloc( pfolder->filelist, sizeof( filest ) * (pfolder->numfiles + 1) );
 
-	if( (*pfolder).filelist != NULL )
+	if( pfolder->filelist != NULL )
 	{
-		(*pfolder).filelist[(*pfolder).numfiles] = *pfile;
-		(*pfolder).numfiles++;
+		pfolder->filelist[pfolder->numfiles] = *pfile;
+		pfolder->numfiles++;
 		return 1;
 	}
 	else
@@ -189,7 +189,7 @@ int append_file_to_list( folderst *pfolder, filest *pfile )
 
 void free_file_list( folderst *pfolder )
 {
-	free( (*pfolder).filelist );
+	free( pfolder->filelist );
 }
 
 void free_sub_folder_list( folderst *pfolder )
@@ -197,29 +197,29 @@ void free_sub_folder_list( folderst *pfolder )
 	/*variables*/
 	unsigned int i;
 
-	for( i = 0; i < (*pfolder).numfolders; i++ )
+	for( i = 0; i < pfolder->numfolders; i++ )
 	{
-		free_sub_folder_list( (&(*pfolder).folderlist[i]) );		
+		free_sub_folder_list( (&pfolder->folderlist[i]) );		
 	}
 
-	if( (*pfolder).folderlist != NULL && (*pfolder).numfolders > 0 )
+	if( pfolder->folderlist != NULL && pfolder->numfolders > 0 )
 		/*free memory of the current folder list*/
-		free( (*pfolder).folderlist );
+		free( pfolder->folderlist );
 
 	/*free memory of current file list*/
-	if( (*pfolder).filelist != NULL && (*pfolder).numfiles > 0 )
+	if( pfolder->filelist != NULL && pfolder->numfiles > 0 )
 	{
 		free_file_list( pfolder );
 	}
 
-	if( strcmp( (*pfolder).foldername, (*pfolder).rootpath ) != 0 )
+	if( strcmp( pfolder->foldername, pfolder->rootpath ) != 0 )
 	{
 		/*free folder- and rootpath*/
-		if( (*pfolder).folderpath != NULL )
-			free( (*pfolder).folderpath );
+		if( pfolder->folderpath != NULL )
+			free( pfolder->folderpath );
 
-		if( (*pfolder).rootpath != NULL )
-			free( (*pfolder).rootpath );	
+		if( pfolder->rootpath != NULL )
+			free( pfolder->rootpath );	
 	}
 }
 
@@ -228,9 +228,9 @@ void free_sub_folder_list( folderst *pfolder )
 	variables
 	unsigned int i;
 
-	for( i = 0; i < (*pfolder).numfiles; i++ )
+	for( i = 0; i < pfolder->numfiles; i++ )
 	{
-		fprintf( stdout, "\t\t\t%s\t%d Bytes\n", (*pfolder).filelist[i].filename, (*pfolder).filelist[i].filesize );
+		fprintf( stdout, "\t\t\t%s\t%d Bytes\n", pfolder->filelist[i].filename, pfolder->filelist[i].filesize );
 	}
 }*/
 
@@ -239,22 +239,22 @@ void free_sub_folder_list( folderst *pfolder )
 	variables
 	unsigned int i;
 
-	for( i = 0; i < (*pfolder).numfolders; i++ )
+	for( i = 0; i < pfolder->numfolders; i++ )
 	{
 		print folder path
-		fprintf( stdout, "\n\t%s\n", (*pfolder).folderlist[i].folderpath );
+		fprintf( stdout, "\n\t%s\n", pfolder->folderlist[i].folderpath );
 		fprintf( stdout, "\t\tfiles:\n" );
 		print file list of the current folder
-		print_file_struct( &((*pfolder).folderlist[i]) );
+		print_file_struct( &(pfolder->folderlist[i]) );
 		do it recursively for all subfolders
-		printf_folder_struct( &((*pfolder).folderlist[i]) );
+		printf_folder_struct( &(pfolder->folderlist[i]) );
 	}
 }*/
 
 int check_is_empty( folderst *pfolder )
 {
-	if( (*pfolder).folderlist == NULL && (*pfolder).filelist == NULL &&
-			(*pfolder).numfiles == 0 && (*pfolder).numfolders == 0 )
+	if( pfolder->folderlist == NULL && pfolder->filelist == NULL &&
+			pfolder->numfiles == 0 && pfolder->numfolders == 0 )
 		return 1;
 	else
 		return 0;
@@ -267,18 +267,18 @@ void set_root_folder_attributes( folderst *pfolder, char *ppath )
 
 	pathlen = strlen( ppath );
 
-	(*pfolder).folderpath = malloc( sizeof( char ) * pathlen + 1 );
+	pfolder->folderpath = malloc( sizeof( char ) * pathlen + 1 );
 
-	if( (*pfolder).folderpath != NULL )
+	if( pfolder->folderpath != NULL )
 		/*set folderpath*/
-		strcpy(	(*pfolder).folderpath, ppath );
+		strcpy(	pfolder->folderpath, ppath );
 	else
 		print_msg( "could not allocate memory for path", ppath, 2 );
 
 	/*set foldername*/
-	(*pfolder).foldername = get_root_folder( ppath );
+	pfolder->foldername = get_root_folder( ppath );
 	/*set root folder*/
-	(*pfolder).rootpath = get_root_folder( ppath );
+	pfolder->rootpath = get_root_folder( ppath );
 }
 
 void set_folder_attributes( folderst *subfolder, folderst *rootfolder, char *pname, char *ppath )

@@ -8,8 +8,6 @@ int find_folder_in_list( folderst *pdestfolder, folderst *psearchfolder )
 	int comp_a = 0;
 	int comp_b = 0;
 
-
-
 	for( i = 0; i < (*psearchfolder).numfolders; i++ )
 	{
 		/*compare:
@@ -21,7 +19,6 @@ int find_folder_in_list( folderst *pdestfolder, folderst *psearchfolder )
 		/*check if the strings are equal*/
 		comp_a = strcmp( (*pdestfolder).foldername, (*psearchfolder).folderlist[i].foldername );
 		comp_b = strcmp( (*pdestfolder).rootpath, (*psearchfolder).folderlist[i].rootpath );
-
 
 		if( comp_a == 0 && comp_b == 0	)
 		{
@@ -38,10 +35,10 @@ int find_file_in_list( filest *pfile, folderst *pfolder )
 	unsigned int i = 0;
 	int comp = 0;
 
-	for( i = 0; i < (*pfolder).numfiles; i++ )
+	for( i = 0; i < pfolder->numfiles; i++ )
 	{
 		/*check if strings are euqal*/
-		comp = strcmp( (*pfile).filename, (*pfolder).filelist[i].filename );
+		comp = strcmp( (*pfile).filename, pfolder->filelist[i].filename );
 		if( comp == 0 )
 		{
 			return i;
@@ -83,13 +80,13 @@ int copy_pathes( folderst *pfolder, char *ppath, char *proot )
 	rootlen = strlen( proot );
 
 	/*allocate space for memory*/
-	(*pfolder).foldername = malloc( sizeof(char) * pathlen + 1 );
-	(*pfolder).rootpath = malloc( sizeof(char) * rootlen + 1 );
+	pfolder->foldername = malloc( sizeof(char) * pathlen + 1 );
+	pfolder->rootpath = malloc( sizeof(char) * rootlen + 1 );
 
-	if( (*pfolder).foldername != NULL && (*pfolder).rootpath != NULL )
+	if( pfolder->foldername != NULL && pfolder->rootpath != NULL )
 	{
-		strcpy( (*pfolder).foldername, ppath );
-		strcpy( (*pfolder).rootpath, proot );
+		strcpy( pfolder->foldername, ppath );
+		strcpy( pfolder->rootpath, proot );
 		return 1;
 	}
 	else
@@ -227,23 +224,28 @@ int check_root_folders( char *ppath_a, char *ppath_b )
 		return -1;
 }
 
-void init_compare( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *pbar )
+gpointer init_compare( sync_folders *pdata )
 {
-	if( check_root_folders( (*pfolder_a).folderpath, (*pfolder_b).folderpath ) == 1 )
+	if( check_root_folders( pdata->a->folder->folderpath, pdata->b->folder->folderpath ) == 1 )
 	{
 		/*pfoldera is leading*/
-		compare_folders( pfolder_a, pfolder_b, pbar );
+		compare_folders( pdata->a->folder, pdata->b->folder, pdata->bar );
 		/*pfolderb is leading*/
-		compare_folders( pfolder_b, pfolder_a, pbar );
+		compare_folders( pdata->b->folder, pdata->a->folder, pdata->bar );
+
+		/*show the that the copy process is ready*/
+		show_msg_dlg( "Synchronisation erledigt", "", 1, NULL );
 
 		/*free memory*/
-		if( (*pfolder_a).empty == 0 )
-			free_sub_folder_list( pfolder_a );
+		if( pdata->a->folder->empty == 0 )
+			free_sub_folder_list( pdata->a->folder );
 
-		if( (*pfolder_b).empty == 0 )
-			free_sub_folder_list( pfolder_b );
+		if( pdata->b->folder->empty == 0 )
+			free_sub_folder_list( pdata->b->folder );
 	}
 	else
 		print_msg( "folders do not have the same root path", "check them", 2 );
+
+	return NULL;
 }
 

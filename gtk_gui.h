@@ -5,26 +5,7 @@
 #include <gtk/gtk.h>
 #include "readfolder.h"
 
-/*defines*/
-/*defintion of the window size (startup)*/
-#define WIDTH 850
-#define HEIGHT 550
-
-/*enums*/
-
-/*enum for treeview columns*/
-enum
-{
-	PIC_COLUMN, /*symbol*/
-	NAME_COLUMN, /*folder- or filename*/
-	FSIZE_COLUMN, /*filesize*/
-	CHDATE_COLUMN, /*changedate*/
-	EQUAL_COLUMN, /*equality of the file*/
-	N_COLUMNS /*number of cols*/
-};
-
 /*structs*/
-
 /*struct for callback function "button_open_clicked"*/
 typedef struct btn_open
 {
@@ -39,7 +20,29 @@ typedef struct sync_data
 	btn_open_data *a;
 	btn_open_data *b;
 	GtkProgressBar *bar;
+	GtkWindow *parent;
 } sync_folders;
+
+/*defines*/
+/*defintion of the window size (startup)*/
+#define WIDTH 850
+#define HEIGHT 550
+
+/*include "comparefolders.h" after the definition of the struct "sync_folders",
+ * because of dependencies*/
+#include "comparefolders.h"
+
+
+/*enum for treeview columns*/
+enum
+{
+	PIC_COLUMN, /*symbol*/
+	NAME_COLUMN, /*folder- or filename*/
+	FSIZE_COLUMN, /*filesize*/
+	CHDATE_COLUMN, /*changedate*/
+	EQUAL_COLUMN, /*equality of the file*/
+	N_COLUMNS /*number of cols*/
+};
 
 /*prototypes*/
 extern void add_menubar_to_main_win( GtkWidget* );

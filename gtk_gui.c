@@ -1,6 +1,63 @@
 /*includes*/
 #include "gtk_gui.h"
 
+/*dialogprint.h*/
+char *build_msg( char *pmsg, char *padd )
+{
+	/*variables*/
+	char *new;
+	int lenmsg;
+	int lenadd;
+
+	/*get length of strings*/
+	lenmsg = strlen( pmsg );
+	lenadd = strlen( padd );
+
+	new = malloc( sizeof( char ) * (lenmsg + lenadd + 2) + 1 );
+
+	if( new != NULL )
+	{
+		strcpy( new, pmsg );
+		strcat( new, " " );
+		strcat( new, padd );
+	}
+
+	return new;
+}
+
+void show_msg_dlg( char* pmsg, char *padd, int ptype, GtkWindow *parent )
+{
+	/*variables*/
+	GtkWidget *msgdialog;
+	char *msg;
+
+	msg = build_msg( pmsg, padd );
+
+	switch( ptype )
+	{
+	case 1:
+		/*info*/
+		msgdialog = gtk_message_dialog_new( parent, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, msg );
+		break;
+	case 2:
+		/*error*/
+		msgdialog = gtk_message_dialog_new( parent, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, msg );
+		break;
+	default:
+		msgdialog = gtk_message_dialog_new( parent, GTK_DIALOG_MODAL, GTK_MESSAGE_OTHER, GTK_BUTTONS_CLOSE, msg );
+		break;
+	}
+
+	/*start dialog*/
+	gtk_dialog_run( GTK_DIALOG(msgdialog) );
+
+	/*destroy dialog*/
+	gtk_widget_destroy( msgdialog );
+
+	/*free memory of string*/
+	free( msg );
+}
+
 void add_menubar_to_main_win( GtkWidget *playout )
 {
 	/*variables*/
@@ -229,17 +286,11 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 
 void button_sync_clicked( GtkButton *pbtn, sync_folders *param )
 {
-	/*Code zum testen der Progressbar!!*/
-	int i = 0;
-	char tmp[10];
 
-	for( i = 0; i <= 100; i++ )
-	{
-		gtk_progress_bar_pulse( param->bar );
-		sprintf( tmp, "%d", i );
-		gtk_progress_bar_set_text( param->bar, tmp );
-	}
-
+	/*start thread for syncing*/
+	if( g_thread_create( init_compare, param, FALSE, NULL ) != NULL )
+		/*error*/
+		show_msg_dlg( "Synchronisationsvorgang konnte nicht gestartet werden.", "", 1, param->parent );
 }
 
 void start_gtk_gui( void )
@@ -269,6 +320,9 @@ void start_gtk_gui( void )
 	GtkWidget *progressbar;
 	GtkWidget *progressframe;
 	GtkWidget *progress_layout;
+
+	/*init threads*/
+	g_thread_init( NULL );
 
 	/*initialize main window*/
 	main_win = gtk_window_new( GTK_WINDOW_TOPLEVEL );
@@ -301,8 +355,6 @@ void start_gtk_gui( void )
 	/*init progressbar*/
 	progressbar = gtk_progress_bar_new();
 	gtk_progress_bar_pulse( GTK_PROGRESS_BAR(progressbar) );
-	//gtk_progress_bar_set_text( GTK_PROGRESS_BAR(progressbar), "Synchronisieren" );
-
 
 	/*add layout to main window*/
 	gtk_container_add( GTK_CONTAINER(main_win), menubar_layout );
@@ -362,6 +414,7 @@ void start_gtk_gui( void )
 	sync_fl->a = btn_data_a;
 	sync_fl->b = btn_data_b;
 	sync_fl->bar = GTK_PROGRESS_BAR(progressbar);
+	sync_fl->parent = GTK_WINDOW( main_win );
 
 	/*button a*/
 	btn_data_a->parent = GTK_WINDOW( main_win );

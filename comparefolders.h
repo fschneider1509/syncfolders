@@ -3,7 +3,7 @@
 
 /*includes*/
 #include <string.h>
-#include <gtk/gtk.h>
+#include "gtk_gui.h"
 #include "readfolder.h"
 #include "consoleprint.h"
 #include "copyfile.h"
@@ -15,6 +15,6 @@ extern int find_file_in_list( filest*, folderst* );
 extern int compare_files( filest*, filest* );
 extern void compare_folders( folderst*, folderst*, GtkProgressBar* );
 extern int check_root_folders( char*, char* );
-extern void init_compare( folderst*, folderst*, GtkProgressBar* );
+extern gpointer init_compare( sync_folders* );
 
 #endif /*COMPAREFOLDERS_H*/
