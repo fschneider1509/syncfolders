@@ -288,7 +288,7 @@ void button_sync_clicked( GtkButton *pbtn, sync_folders *param )
 {
 
 	/*start thread for syncing*/
-	if( g_thread_create( init_compare, param, FALSE, NULL ) != NULL )
+	if( g_thread_create( init_compare, param, FALSE, NULL ) == NULL )
 		/*error*/
 		show_msg_dlg( "Synchronisationsvorgang konnte nicht gestartet werden.", "", 1, param->parent );
 }

@@ -224,8 +224,21 @@ int check_root_folders( char *ppath_a, char *ppath_b )
 		return -1;
 }
 
+void thread_wrapper_msg( thread_wrap *pdata )
+{
+	/*show the that the copy process is ready*/
+	show_msg_dlg( pdata->msg, pdata->add, pdata->type, pdata->data->parent );
+}
+
 gpointer init_compare( sync_folders *pdata )
 {
+	/*variables*/
+	thread_wrap *thread_data;
+
+	thread_data = g_slice_new( thread_wrap );
+
+	thread_data->data = pdata;
+
 	if( check_root_folders( pdata->a->folder->folderpath, pdata->b->folder->folderpath ) == 1 )
 	{
 		/*pfoldera is leading*/
@@ -233,18 +246,26 @@ gpointer init_compare( sync_folders *pdata )
 		/*pfolderb is leading*/
 		compare_folders( pdata->b->folder, pdata->a->folder, pdata->bar );
 
-		/*show the that the copy process is ready*/
-		show_msg_dlg( "Synchronisation erledigt", "", 1, NULL );
-
 		/*free memory*/
 		if( pdata->a->folder->empty == 0 )
 			free_sub_folder_list( pdata->a->folder );
 
 		if( pdata->b->folder->empty == 0 )
 			free_sub_folder_list( pdata->b->folder );
+
+		strcpy( thread_data->msg, "Synchronisation erledit" );
+		strcpy( thread_data->add, "" );
+		thread_data->type = 1;
+
 	}
 	else
-		print_msg( "folders do not have the same root path", "check them", 2 );
+	{
+		strcpy( thread_data->msg, "Root-Ordner sind nicht identisch." );
+		strcpy( thread_data->add, "Bitte Überprüfen!" );
+		thread_data->type = 2;
+	}
+
+	g_idle_add( thread_wrapper_msg, thread_data );
 
 	return NULL;
 }

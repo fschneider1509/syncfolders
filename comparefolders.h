@@ -9,6 +9,14 @@
 #include "copyfile.h"
 #include "copyfolder.h"
 
+/*struct*/
+typedef struct wrapper{
+	char msg[300];
+	char add[300];
+	sync_folders *data;
+	int type;
+} thread_wrap;
+
 /*prototypes*/
 extern int find_folder_in_list( folderst *, folderst* );
 extern int find_file_in_list( filest*, folderst* );
