@@ -242,6 +242,12 @@ void show_log_window()
 	GtkWidget *layout;
 	GdkPixbuf *icon;
 	GError *err = NULL;
+	GtkTreeStore *store;
+	GtkWidget *logtree;
+	GtkWidget *renderer;
+	GtkTreeViewColumn *typecolumn;
+	GtkTreeViewColumn *msgcolumn;
+	GtkTreeViewColumn *namecolumn;
 
 	log_win = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 
@@ -261,15 +267,40 @@ void show_log_window()
 	/*set layout*/
 	layout = gtk_vbox_new( FALSE, 3 );
 	buttonbox = gtk_hbutton_box_new();
-	gtk_container_add( GTK_CONTAINER(log_win), buttonbox );
+	gtk_container_add( GTK_CONTAINER(log_win), layout );
+
+	/*add scrollarea*/
+	scrollarea = gtk_scrolled_window_new( NULL, NULL );
+	gtk_box_pack_start( GTK_BOX(layout), scrollarea, TRUE, TRUE, 0 );
 
 	/*add button*/
 	btn_close = gtk_button_new_from_stock( GTK_STOCK_QUIT );
+	gtk_box_pack_start( GTK_BOX(layout), buttonbox, FALSE, FALSE, 0 );
 	gtk_box_pack_start( GTK_BOX(buttonbox), btn_close, FALSE, FALSE, 0 );
 
+	/*add treeview*/
+	store = gtk_tree_store_new( NUM_COLUMNS, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING );
+	logtree = gtk_tree_view_new_with_model( GTK_TREE_MODEL(store) );
+	renderer = gtk_cell_renderer_pixbuf_new();
+	typecolumn = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title( typecolumn, "Typ" );
+	gtk_tree_view_column_pack_start( typecolumn, renderer, FALSE );
+	gtk_tree_view_column_set_attributes( typecolumn, renderer, "pixbuf", ICO_COLUMN, NULL );
+	renderer = gtk_cell_renderer_text_new();
+	gtk_tree_view_column_pack_start( typecolumn, renderer, TRUE );
+	gtk_tree_view_column_set_attributes( typecolumn, renderer, "text", TYPE_COLUMN, NULL );
+
+	namecolumn = gtk_tree_view_column_new_with_attributes( "Pfad", renderer, "text", PATH_COLUMN, NULL );
+	msgcolumn = gtk_tree_view_column_new_with_attributes( "Meldung", renderer, "text", MSG_COLUMN, NULL );
+
+	gtk_tree_view_append_column( GTK_TREE_VIEW(logtree), typecolumn );
+	gtk_tree_view_append_column( GTK_TREE_VIEW(logtree), namecolumn );
+	gtk_tree_view_append_column( GTK_TREE_VIEW(logtree), msgcolumn );
+
+	gtk_container_add( GTK_CONTAINER(scrollarea), logtree );
 
 	/*bindings*/
-	g_signal_connect( btn_close, "clicked", G_CALLBACK(gtk_widget_destroy), log_win );
+	//g_signal_connect( btn_close, "clicked", G_CALLBACK(gtk_widget_destroy), log_win );
 	g_signal_connect( log_win, "destroy", G_CALLBACK(gtk_widget_destroy), log_win );
 
 	gtk_widget_show_all( log_win );
@@ -398,7 +429,6 @@ void start_gtk_gui( void )
 
 	/*add layout to main window*/
 	gtk_container_add( GTK_CONTAINER(main_win), menubar_layout );
-
 
 	/*set properties*/
 	set_main_win_attributes( main_win, "syncfolders-gtk" );

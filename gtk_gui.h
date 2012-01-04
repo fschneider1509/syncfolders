@@ -35,7 +35,7 @@ typedef struct sync_data
 
 
 /*enums*/
-enum
+enum /*enum for foldertreeview*/
 {
 	PIC_COLUMN, /*symbol*/
 	NAME_COLUMN, /*folder- or filename*/
@@ -43,6 +43,15 @@ enum
 	CHDATE_COLUMN, /*changedate*/
 	EQUAL_COLUMN, /*equality of the file*/
 	N_COLUMNS /*number of cols*/
+};
+
+enum /*enum for logview*/
+{
+	ICO_COLUMN, /*symbol*/
+	TYPE_COLUMN, /*message type*/
+	PATH_COLUMN, /*file- or foldername*/
+	MSG_COLUMN, /*message*/
+	NUM_COLUMNS /*number of cols*/
 };
 
 /*prototypes*/
