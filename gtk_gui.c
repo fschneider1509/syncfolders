@@ -232,6 +232,49 @@ GtkTreeStore *add_folder_view( GtkWidget *playout, GtkWidget **ptview )
 	return filetree;
 }
 
+void show_log_window()
+{
+	/*variables*/
+	GtkWidget *log_win;
+	GtkWidget *scrollarea;
+	GtkWidget *buttonbox;
+	GtkWidget *btn_close;
+	GtkWidget *layout;
+	GdkPixbuf *icon;
+	GError *err = NULL;
+
+	log_win = gtk_window_new( GTK_WINDOW_TOPLEVEL );
+
+
+	/*set attributes of the window*/
+	gtk_window_set_title (GTK_WINDOW (log_win), "Log" );
+	gtk_container_set_border_width (GTK_CONTAINER (log_win), 0);
+	gtk_window_set_resizable( GTK_WINDOW(log_win), TRUE );
+	gtk_window_set_default_size( GTK_WINDOW(log_win), 550, 300 );
+	gtk_window_set_position( GTK_WINDOW(log_win), GTK_WIN_POS_CENTER );
+	gtk_window_set_modal( GTK_WINDOW(log_win), TRUE );
+
+	/*set icon*/
+	icon = gdk_pixbuf_new_from_file( "logo.png", &err );
+	gtk_window_set_icon( GTK_WINDOW(log_win), icon );
+
+	/*set layout*/
+	layout = gtk_vbox_new( FALSE, 3 );
+	buttonbox = gtk_hbutton_box_new();
+	gtk_container_add( GTK_CONTAINER(log_win), buttonbox );
+
+	/*add button*/
+	btn_close = gtk_button_new_from_stock( GTK_STOCK_QUIT );
+	gtk_box_pack_start( GTK_BOX(buttonbox), btn_close, FALSE, FALSE, 0 );
+
+
+	/*bindings*/
+	g_signal_connect( btn_close, "clicked", G_CALLBACK(gtk_widget_destroy), log_win );
+	g_signal_connect( log_win, "destroy", G_CALLBACK(gtk_widget_destroy), log_win );
+
+	gtk_widget_show_all( log_win );
+}
+
 /*****************************************************************************************************************************************/
 /*callback functions*/
 void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
@@ -283,7 +326,7 @@ void button_sync_clicked( GtkButton *pbtn, sync_folders *param )
 
 void button_log_clicked( GtkButton *pbtn, gpointer data )
 {
-
+	show_log_window();
 }
 /*****************************************************************************************************************************************/
 
@@ -309,6 +352,7 @@ void start_gtk_gui( void )
 	btn_open_data *btn_data_b;
 	GtkWidget *btn_sync;
 	GtkWidget *btn_close;
+	GtkWidget *btn_log;
 	GtkWidget *sync_layout;
 	sync_folders *sync_fl;
 	GtkWidget *progressbar;
@@ -339,6 +383,7 @@ void start_gtk_gui( void )
 	btn_open_b = gtk_button_new_from_stock( GTK_STOCK_OPEN );
 	btn_sync = gtk_button_new_from_stock( GTK_STOCK_COPY );
 	btn_close = gtk_button_new_from_stock( GTK_STOCK_QUIT );
+	btn_log = gtk_button_new_with_label( "Log-File" );
 
 	/*initialize entries*/
 	entry_a = gtk_entry_new();
@@ -392,6 +437,7 @@ void start_gtk_gui( void )
 	/*add sync button*/
 	gtk_hbutton_box_set_layout_default( GTK_BUTTONBOX_START );
 	gtk_box_pack_start( GTK_BOX(sync_layout), btn_sync, FALSE, FALSE, 0 );
+	gtk_box_pack_start( GTK_BOX(sync_layout), btn_log, FALSE, FALSE, 0 );
 	gtk_box_pack_start( GTK_BOX(sync_layout), btn_close, FALSE, FALSE, 0 );
 
 	/*add progressbar*/
@@ -431,6 +477,7 @@ void start_gtk_gui( void )
 	g_signal_connect( btn_open_b, "clicked", G_CALLBACK(button_open_clicked), btn_data_b );
 	g_signal_connect( btn_sync, "clicked", G_CALLBACK(button_sync_clicked), sync_fl );
 	g_signal_connect( btn_close, "clicked", G_CALLBACK(gtk_main_quit), NULL );
+	g_signal_connect( btn_log, "clicked", G_CALLBACK(button_log_clicked), NULL );
 	g_signal_connect (main_win, "destroy", G_CALLBACK(gtk_main_quit), NULL );
 
 	gtk_widget_show_all (main_win);
