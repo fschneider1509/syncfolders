@@ -110,6 +110,7 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *
 	int iposfolder = 0;
 	filest *tmpfile;
 	folderst *tmpfolder;
+	msg_issue tmp_issue;
 
 	/*first the files*/
 	for( i = 0; i < (*pfolder_a).numfiles; i++ )
@@ -173,12 +174,22 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *
 						start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[(*pfolder_b).numfiles-1]), pbar, pissues );
 					else
 					{
-						print_msg( "file could not be copied", (*pfolder_a).filelist[i].filepath, 2 );
+						/*print_msg( "file could not be copied", (*pfolder_a).filelist[i].filepath, 2 );*/
+						issue_set_type( &tmp_issue, "Fehler" );
+						issue_set_name( &tmp_issue, (*pfolder_a).filelist[i].filepath );
+						issue_set_msg( &tmp_issue, "Datei konnte nicht kopiert werden" );
+						append_issue_to_list( &tmp_issue, pissues );
 					}
 				}
 			}
 			else
-				print_msg( "temporary file could not be created", (*pfolder_a).filelist[i].filename, 2 );
+			{
+				/*print_msg( "temporary file could not be created", (*pfolder_a).filelist[i].filename, 2 );*/
+				issue_set_type( &tmp_issue, "Fehler" );
+				issue_set_name( &tmp_issue, (*pfolder_a).filelist[i].filename );
+				issue_set_msg( &tmp_issue, "Temporäredatei konnte nicht angelegt werden." );
+				append_issue_to_list( &tmp_issue, pissues );
+			}
 		}
 	}
 
@@ -214,10 +225,22 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *
 					compare_folders( &((*pfolder_a).folderlist[j]), &((*pfolder_b).folderlist[(*pfolder_b).numfolders-1]), pbar, pissues );
 				}
 				else
-					print_msg( "folder could not be created", (*pfolder_a).folderlist[j].rootpath, 2 );
+				{
+					/*print_msg( "folder could not be created", (*pfolder_a).folderlist[j].rootpath, 2 );*/
+					issue_set_type( &tmp_issue, "Fehler" );
+					issue_set_name( &tmp_issue, (*pfolder_a).folderlist[i].rootpath );
+					issue_set_msg( &tmp_issue, "Ordner konnte nicht angelegt werden." );
+					append_issue_to_list( &tmp_issue, pissues );
+				}
 			}
 			else
-				print_msg( "temporary folder could not be created (malloc)", (*pfolder_a).folderlist[j].foldername , 2);
+			{
+				/*print_msg( "temporary folder could not be created (malloc)", (*pfolder_a).folderlist[j].foldername , 2);*/
+				issue_set_type( &tmp_issue, "Fehler" );
+				issue_set_name( &tmp_issue, (*pfolder_a).folderlist[i].foldername );
+				issue_set_msg( &tmp_issue, "Temporärer Ordner konnte nicht angelegt werden (malloc)" );
+				append_issue_to_list( &tmp_issue, pissues );
+			}
 		}
 	}
 }
