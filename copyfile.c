@@ -3,7 +3,9 @@
 
 int set_physical_change_date( time_t *pdate, filest *pfile, issue_list *pissues )
 {
+	/*variables*/
 	struct utimbuf newtime;
+	msg_issue tmp_issue;
 
 	newtime.actime = *pdate;
 	newtime.modtime = *pdate;
@@ -13,7 +15,10 @@ int set_physical_change_date( time_t *pdate, filest *pfile, issue_list *pissues 
 	{
 		/*change time could not be changed*/
 		/*print_msg( "change time could not be changed", (*pfile).filepath, 2 );*/
-		show_msg_dlg( "Änderungsdatum konnte nicht gesetzt werden", (*pfile).filepath, 2, NULL );
+		issue_set_type( &tmp_issue, "Fehler" );
+		issue_set_name( &tmp_issue, (*pfile).filepath );
+		issue_set_msg( &tmp_issue, "Das Änderungsdatum konnte nicht gesetzt werden" );
+		append_issue_to_list( &tmp_issue, pissues );
 		return -1;
 	}
 	/*set changedate in struct*/
@@ -72,6 +77,7 @@ int copy_file_on_disk( filest *srcfile, filest *destfile, issue_list *pissues )
 	/*variables*/
 	FILE *src;
 	FILE *dest;
+	msg_issue tmp_issue;
 
 	/*delete destfile*/
 	if( remove( (*destfile).filepath ) == 0 )
@@ -98,16 +104,33 @@ int copy_file_on_disk( filest *srcfile, filest *destfile, issue_list *pissues )
 					return -1;
 			}
 			else
+			{
 				/*print_msg( "file could not be created", (*srcfile).filepath, 2 );*/
-				show_msg_dlg( "Datei konnte nicht angelegt werden", (*srcfile).filepath, 2, NULL );
+				issue_set_type( &tmp_issue, "Fehler" );
+				issue_set_name( &tmp_issue, (*srcfile).filepath );
+				issue_set_msg( &tmp_issue, "Datei konnte nicht angelegt werden" );
+				append_issue_to_list( &tmp_issue, pissues );
+			}
 		}
 		else
+		{
 			/*print_msg( "file could not be opened", (*srcfile).filepath, 2 );*/
-			show_msg_dlg( "Datei konnte nicht geöffnet werden.", (*srcfile).filepath, 2, NULL );
+			issue_set_type( &tmp_issue, "Fehler" );
+			issue_set_name( &tmp_issue, (*srcfile).filepath );
+			issue_set_msg( &tmp_issue, "Datei konnte zum kopieren nicht geöffnet werden" );
+			append_issue_to_list( &tmp_issue, pissues );
+		}
+
 	}
 	else
+	{
 		/*print_msg( "file could not be deleted", (*destfile).filepath, 2 );*/
-		show_msg_dlg( "Datei konnte nicht gelöscht werden", (*destfile).filepath, 2, NULL );
+		issue_set_type( &tmp_issue, "Fehler" );
+		issue_set_name( &tmp_issue, (*destfile).filepath );
+		issue_set_msg( &tmp_issue, "Datei konnte nicht gelöscht werden" );
+		append_issue_to_list( &tmp_issue, pissues );
+	}
+
 		
 	return -1;
 }
