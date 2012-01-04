@@ -268,6 +268,8 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 	}
 	/*destroy the widget*/
 	gtk_widget_destroy (fileopen);
+
+	print_issues( data->issues );
 }
 
 void button_sync_clicked( GtkButton *pbtn, sync_folders *param )
@@ -403,6 +405,8 @@ void start_gtk_gui( void )
 	btn_data_b->folder = g_slice_new( folderst );
 	sync_fl = g_slice_new( sync_folders );
 	all_issues = g_slice_new( issue_list );
+
+	reset_issue_list( all_issues );
 
 	/*save button data*/
 	sync_fl->a = btn_data_a;

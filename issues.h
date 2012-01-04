@@ -25,5 +25,6 @@ extern void issue_set_type( msg_issue*, char* );
 extern void issue_set_name( msg_issue*, char* );
 extern int append_issue_to_list( msg_issue*, issue_list* );
 extern void reset_issue_list( issue_list* );
+extern void print_issues( issue_list* );
 
 #endif /*ISSUES_H*/

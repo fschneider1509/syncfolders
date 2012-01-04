@@ -151,8 +151,11 @@ char *get_root_folder( char *ppath )
 		return NULL;
 }
 
-int append_sub_folder_to_list( folderst *pfolder, folderst *psubfolder, issue_list *issues )
+int append_sub_folder_to_list( folderst *pfolder, folderst *psubfolder, issue_list *pissues )
 {
+	/*variables*/
+	msg_issue tmp_issue;
+
 	/*allocate memory for a new folder entry in the list*/
 	pfolder->folderlist = realloc( pfolder->folderlist, sizeof( folderst ) * (pfolder->numfolders + 1) );
 
@@ -165,13 +168,19 @@ int append_sub_folder_to_list( folderst *pfolder, folderst *psubfolder, issue_li
 	else
 	{
 		/*print_msg( "appending to list failed", pfolder->foldername, 2 );*/
-		show_msg_dlg( "Ordner konnte nicht an Liste angehängt werden:", pfolder->foldername, 2, NULL );
+		issue_set_type( &tmp_issue, "Fehler" );
+		issue_set_name( &tmp_issue, pfolder->foldername );
+		issue_set_msg( &tmp_issue, "Ordner konnte nicht an List angehängt werden" );
+		append_issue_to_list( &tmp_issue, pissues );
 		return -1;
 	}	
 }
 
-int append_file_to_list( folderst *pfolder, filest *pfile, issue_list *issues )
+int append_file_to_list( folderst *pfolder, filest *pfile, issue_list *pissues )
 {
+	/*variables*/
+	msg_issue tmp_issue;
+
 	/*allocate memory for the entry in the list*/
 	pfolder->filelist = realloc( pfolder->filelist, sizeof( filest ) * (pfolder->numfiles + 1) );
 
@@ -184,7 +193,10 @@ int append_file_to_list( folderst *pfolder, filest *pfile, issue_list *issues )
 	else
 	{
 		/*print_msg( "appending to list failed", pfolder->foldername, 2 );*/
-		show_msg_dlg( "Datei konnte nicht an Liste angehängt werden:", pfolder->foldername, 2, NULL );
+		issue_set_type( &tmp_issue, "Fehler" );
+		issue_set_name( &tmp_issue, pfolder->foldername );
+		issue_set_msg( &tmp_issue, "Datei konnte nicht an List angehängt werden" );
+		append_issue_to_list( &tmp_issue, pissues );
 		return -1;
 	}	
 }
@@ -266,6 +278,7 @@ void set_root_folder_attributes( folderst *pfolder, char *ppath, issue_list *pis
 {
 	/*variables*/
 	size_t pathlen;
+	msg_issue tmp_issue;
 
 	pathlen = strlen( ppath );
 
@@ -275,8 +288,14 @@ void set_root_folder_attributes( folderst *pfolder, char *ppath, issue_list *pis
 		/*set folderpath*/
 		strcpy(	pfolder->folderpath, ppath );
 	else
+	{
 		/*print_msg( "could not allocate memory for path", ppath, 2 );*/
-		show_msg_dlg( "Speicher für Pfad konnte nicht allokiert werden", ppath, 2, NULL );
+		issue_set_type( &tmp_issue, "Fehler" );
+		issue_set_name( &tmp_issue, ppath );
+		issue_set_msg( &tmp_issue, "Speicher für Rootpfad konnte nicht reserviert werden" );
+		append_issue_to_list( &tmp_issue, pissues );
+	}
+
 
 	/*set foldername*/
 	pfolder->foldername = get_root_folder( ppath );
@@ -288,6 +307,7 @@ void set_folder_attributes( folderst *subfolder, folderst *rootfolder, char *pna
 {
 	/*variables*/
 	size_t namelen = 0;
+	msg_issue tmp_issue;
 
 	namelen = strlen( pname );
 
@@ -299,8 +319,13 @@ void set_folder_attributes( folderst *subfolder, folderst *rootfolder, char *pna
 		strcpy( (*subfolder).foldername, pname );
 	}
 	else
+	{
 		/*print_msg( "memory for foldername could not be allocated", ppath, 2 );*/
-		show_msg_dlg( "Speicher für Ordnername konnte nicht allokiert werden", ppath, 2, NULL );
+		issue_set_type( &tmp_issue, "Fehler" );
+		issue_set_name( &tmp_issue, ppath );
+		issue_set_msg( &tmp_issue, "Speicher für Ordnernamen konnte nicht reserviert werden" );
+		append_issue_to_list( &tmp_issue, pissues );
+	}
 
 	/*set folderlayer*/
 	(*subfolder).folderlayer = (*rootfolder).folderlayer + 1;
@@ -314,6 +339,7 @@ void set_file_attributes( filest *pfile, char *pname, struct stat *pfattributes,
 {
 	/*variables*/
 	size_t namelen = 0;
+	msg_issue tmp_issue;
 
 	namelen = strlen( pname );
 
@@ -325,8 +351,13 @@ void set_file_attributes( filest *pfile, char *pname, struct stat *pfattributes,
 		strcpy( (*pfile).filename, pname );
 	}
 	else
+	{
 		/*print_msg( "memory for filename could not be allocated", ppath, 2 );*/
-		show_msg_dlg( "Speicher für Dateipfad konnte nicht allokiert werden:", ppath, 2, NULL );
+		issue_set_type( &tmp_issue, "Fehler" );
+		issue_set_name( &tmp_issue, ppath );
+		issue_set_msg( &tmp_issue, "Speicher für Dateinamen konnte nicht reserviert werden" );
+		append_issue_to_list( &tmp_issue, pissues );
+	}
 
 	/*get filesize*/
 	(*pfile).filesize = get_file_size( pfattributes );
@@ -346,6 +377,9 @@ int read_folder( char *ppath, folderst *pfolder, issue_list *pissues )
 	struct dirent *dirst;
 	struct stat fileattributes;
 	char *curfl;
+	msg_issue tmp_issue;
+	filest tmpfl;
+	folderst subfl;
 	
 	/*open dir*/
 	curdir = opendir( ppath );
@@ -367,7 +401,6 @@ int read_folder( char *ppath, folderst *pfolder, issue_list *pissues )
 					case 1:
 					{
 						/*create temp folder struct*/
-						folderst subfl;
 						reset_folder( &subfl );
 
 						/*set folders attributes*/
@@ -383,7 +416,6 @@ int read_folder( char *ppath, folderst *pfolder, issue_list *pissues )
 					case 2:
 					{
 						/*create temp file struct*/
-						filest tmpfl;
 						reset_file( &tmpfl );
 
 						/*set file attributes*/
@@ -391,6 +423,12 @@ int read_folder( char *ppath, folderst *pfolder, issue_list *pissues )
 
 						/*add file to file list*/
 						append_file_to_list( pfolder, &tmpfl, pissues );
+
+						issue_set_type( &tmp_issue, "Info" );
+						issue_set_name( &tmp_issue, tmpfl.filepath );
+						issue_set_msg( &tmp_issue, "Wurde angehängt" );
+						append_issue_to_list( &tmp_issue, pissues );
+
 						break;
 					}
 					case -1:
@@ -398,14 +436,20 @@ int read_folder( char *ppath, folderst *pfolder, issue_list *pissues )
 						break;
 					default:
 						/*print_msg ( "unknown file", curfl, 2 );*/
-						show_msg_dlg( "Unbekannter Dateityp:", curfl, 2, NULL );
+						issue_set_type( &tmp_issue, "Warnung" );
+						issue_set_name( &tmp_issue, curfl );
+						issue_set_msg( &tmp_issue, "Unbekannter Dateityp" );
+						append_issue_to_list( &tmp_issue, pissues );
 						break;
 				}
 			}
 			else
 			{
 				/*print_msg( "attributes could not be read", curfl, 2 );*/
-				show_msg_dlg( "Attribute konnten nicht gelesen werden:", curfl, 1, NULL );
+				issue_set_type( &tmp_issue, "Fehler" );
+				issue_set_name( &tmp_issue, curfl );
+				issue_set_msg( &tmp_issue, "Attribute konnten nicht gelesen werden" );
+				append_issue_to_list( &tmp_issue, pissues );
 			}
 
 			(*pfolder).empty = check_is_empty( pfolder );
