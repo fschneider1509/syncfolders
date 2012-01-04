@@ -101,12 +101,24 @@ GdkPixbuf *get_icon( gint type )
 	/*get default gtk theme*/
 	curtheme = gtk_icon_theme_get_default();
 
-	if( type == 1 )
-		/*load file icon*/
+	switch( type )
+	{
+	case 1:
 		tmp = gtk_icon_theme_load_icon( curtheme, "document", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
-	else
-		/*load folder icon*/
+		break;
+	case 2:
 		tmp = gtk_icon_theme_load_icon( curtheme, "folder", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
+		break;
+	case 3:
+		tmp = gtk_icon_theme_load_icon( curtheme, "info", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
+		break;
+	case 4:
+		tmp = gtk_icon_theme_load_icon( curtheme, "cancel", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
+		break;
+	case 5:
+		tmp = gtk_icon_theme_load_icon( curtheme, "file", 16, GTK_ICON_LOOKUP_FORCE_SVG, NULL );
+		break;
+	}
 
 	return tmp;
 }
@@ -232,7 +244,7 @@ GtkTreeStore *add_folder_view( GtkWidget *playout, GtkWidget **ptview )
 	return filetree;
 }
 
-void show_log_window()
+void show_log_window( issue_list *pissues )
 {
 	/*variables*/
 	GtkWidget *log_win;
@@ -244,10 +256,13 @@ void show_log_window()
 	GError *err = NULL;
 	GtkTreeStore *store;
 	GtkWidget *logtree;
-	GtkWidget *renderer;
+	GtkCellRenderer *renderer;
 	GtkTreeViewColumn *typecolumn;
 	GtkTreeViewColumn *msgcolumn;
 	GtkTreeViewColumn *namecolumn;
+	GtkTreeIter iter;
+	unsigned int i = 0;
+	GdkPixbuf *treeicon;
 
 	log_win = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 
@@ -279,7 +294,7 @@ void show_log_window()
 	gtk_box_pack_start( GTK_BOX(buttonbox), btn_close, FALSE, FALSE, 0 );
 
 	/*add treeview*/
-	store = gtk_tree_store_new( NUM_COLUMNS, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING );
+	store = gtk_tree_store_new( NUM_COLUMNS, GDK_TYPE_PIXBUF,G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING );
 	logtree = gtk_tree_view_new_with_model( GTK_TREE_MODEL(store) );
 	renderer = gtk_cell_renderer_pixbuf_new();
 	typecolumn = gtk_tree_view_column_new();
@@ -302,6 +317,13 @@ void show_log_window()
 	/*bindings*/
 	//g_signal_connect( btn_close, "clicked", G_CALLBACK(gtk_widget_destroy), log_win );
 	g_signal_connect( log_win, "destroy", G_CALLBACK(gtk_widget_destroy), log_win );
+
+	/*fill treeview*/
+	for( i = 0; i < pissues->num_issues; i++ )
+	{
+		gtk_tree_store_append( store, &iter, NULL );
+		gtk_tree_store_set( store, &iter, ICO_COLUMN, get_icon(4), TYPE_COLUMN, pissues->issues[i].type, NAME_COLUMN, pissues->issues[i].name, MSG_COLUMN, pissues->issues[i].msg, -1 );
+	}
 
 	gtk_widget_show_all( log_win );
 }
@@ -343,7 +365,7 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 	/*destroy the widget*/
 	gtk_widget_destroy (fileopen);
 
-	print_issues( data->issues );
+	//print_issues( data->issues );
 }
 
 void button_sync_clicked( GtkButton *pbtn, sync_folders *param )
@@ -355,9 +377,9 @@ void button_sync_clicked( GtkButton *pbtn, sync_folders *param )
 		show_msg_dlg( "Synchronisationsvorgang konnte nicht gestartet werden.", "", 1, param->parent );
 }
 
-void button_log_clicked( GtkButton *pbtn, gpointer data )
+void button_log_clicked( GtkButton *pbtn,  issue_list *pissues )
 {
-	show_log_window();
+	show_log_window( pissues );
 }
 /*****************************************************************************************************************************************/
 
@@ -507,7 +529,7 @@ void start_gtk_gui( void )
 	g_signal_connect( btn_open_b, "clicked", G_CALLBACK(button_open_clicked), btn_data_b );
 	g_signal_connect( btn_sync, "clicked", G_CALLBACK(button_sync_clicked), sync_fl );
 	g_signal_connect( btn_close, "clicked", G_CALLBACK(gtk_main_quit), NULL );
-	g_signal_connect( btn_log, "clicked", G_CALLBACK(button_log_clicked), NULL );
+	g_signal_connect( btn_log, "clicked", G_CALLBACK(button_log_clicked), all_issues );
 	g_signal_connect (main_win, "destroy", G_CALLBACK(gtk_main_quit), NULL );
 
 	gtk_widget_show_all (main_win);

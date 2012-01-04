@@ -64,7 +64,7 @@ extern void add_folder_to_treeview( folderst*, GtkTreeStore*, GtkTreeIter* );
 extern GtkTreeStore *add_folder_view( GtkWidget*, GtkWidget** );
 extern void button_open_clicked( GtkButton*, btn_open_data* );
 extern void button_sync_clicked( GtkButton*, sync_folders* );
-extern void button_log_clicked( GtkButton*, gpointer );
+extern void button_log_clicked( GtkButton*, issue_list* );
 extern void start_gtk_gui( void );
 
 #endif /*GTK_GUI_H*/

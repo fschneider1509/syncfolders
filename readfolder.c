@@ -424,10 +424,10 @@ int read_folder( char *ppath, folderst *pfolder, issue_list *pissues )
 						/*add file to file list*/
 						append_file_to_list( pfolder, &tmpfl, pissues );
 
-						/*issue_set_type( &tmp_issue, "Info" );
+						issue_set_type( &tmp_issue, "Info" );
 						issue_set_name( &tmp_issue, tmpfl.filepath );
-						issue_set_msg( &tmp_issue, "Wurde angehängt" );
-						append_issue_to_list( &tmp_issue, pissues );*/
+						issue_set_msg( &tmp_issue, "eingelesen" );
+						append_issue_to_list( &tmp_issue, pissues );
 
 						break;
 					}
