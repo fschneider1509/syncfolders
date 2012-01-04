@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <time.h>
+#include "issues.h"
 
 /*structs*/
 struct filestruct{
@@ -47,14 +48,15 @@ extern int is_hidden( char* );
 extern int check_type( struct stat*, char* );
 extern unsigned int get_file_size( struct stat* );
 extern size_t get_change_date( struct stat* );
-extern int append_sub_folder_to_list( folderst*, folderst* );
-extern int append_file_to_list( folderst*, filest* );
+extern int append_sub_folder_to_list( folderst*, folderst*, issue_list* );
+extern int append_file_to_list( folderst*, filest*, issue_list* );
 /*extern void print_file_struct( folderst* );
 extern void printf_folder_struct( folderst* );*/
 extern char *get_root_folder( char* );
-extern void set_folder_attributes( folderst*, folderst* , char* , char* );
-extern void set_file_attributes( filest*, char*, struct stat*, char*, folderst* );
-extern int read_folder( char*, folderst* );
+extern void set_folder_attributes( folderst*, folderst* , char* , char*, issue_list* );
+extern void set_file_attributes( filest*, char*, struct stat*, char*, folderst*, issue_list* );
+extern void set_root_folder_attributes( folderst*, char*, issue_list* );
+extern int read_folder( char*, folderst*, issue_list* );
 extern void free_file_list( folderst* );
 extern void free_sub_folder_list( folderst* );
 extern char *remove_trailing_slash( char* );

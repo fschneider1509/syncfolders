@@ -151,7 +151,7 @@ char *get_root_folder( char *ppath )
 		return NULL;
 }
 
-int append_sub_folder_to_list( folderst *pfolder, folderst *psubfolder )
+int append_sub_folder_to_list( folderst *pfolder, folderst *psubfolder, issue_list *issues )
 {
 	/*allocate memory for a new folder entry in the list*/
 	pfolder->folderlist = realloc( pfolder->folderlist, sizeof( folderst ) * (pfolder->numfolders + 1) );
@@ -170,7 +170,7 @@ int append_sub_folder_to_list( folderst *pfolder, folderst *psubfolder )
 	}	
 }
 
-int append_file_to_list( folderst *pfolder, filest *pfile )
+int append_file_to_list( folderst *pfolder, filest *pfile, issue_list *issues )
 {
 	/*allocate memory for the entry in the list*/
 	pfolder->filelist = realloc( pfolder->filelist, sizeof( filest ) * (pfolder->numfiles + 1) );
@@ -262,7 +262,7 @@ int check_is_empty( folderst *pfolder )
 		return 0;
 }
 
-void set_root_folder_attributes( folderst *pfolder, char *ppath )
+void set_root_folder_attributes( folderst *pfolder, char *ppath, issue_list *pissues )
 {
 	/*variables*/
 	size_t pathlen;
@@ -284,7 +284,7 @@ void set_root_folder_attributes( folderst *pfolder, char *ppath )
 	pfolder->rootpath = get_root_folder( ppath );
 }
 
-void set_folder_attributes( folderst *subfolder, folderst *rootfolder, char *pname, char *ppath )
+void set_folder_attributes( folderst *subfolder, folderst *rootfolder, char *pname, char *ppath, issue_list *pissues )
 {
 	/*variables*/
 	size_t namelen = 0;
@@ -310,7 +310,7 @@ void set_folder_attributes( folderst *subfolder, folderst *rootfolder, char *pna
 	(*subfolder).rootpath = build_path( (*rootfolder).rootpath , pname );
 }
 
-void set_file_attributes( filest *pfile, char *pname, struct stat *pfattributes, char *ppath, folderst *rootfolder )
+void set_file_attributes( filest *pfile, char *pname, struct stat *pfattributes, char *ppath, folderst *rootfolder, issue_list *pissues )
 {
 	/*variables*/
 	size_t namelen = 0;
@@ -339,7 +339,7 @@ void set_file_attributes( filest *pfile, char *pname, struct stat *pfattributes,
 	(*pfile).rootpath = build_path( (*rootfolder).rootpath, ppath );
 }
 
-int read_folder( char *ppath, folderst *pfolder )
+int read_folder( char *ppath, folderst *pfolder, issue_list *pissues )
 {
 	/*variables*/
 	DIR *curdir;
@@ -371,13 +371,13 @@ int read_folder( char *ppath, folderst *pfolder )
 						reset_folder( &subfl );
 
 						/*set folders attributes*/
-						set_folder_attributes( &subfl, pfolder, (*dirst).d_name, curfl );
+						set_folder_attributes( &subfl, pfolder, (*dirst).d_name, curfl, pissues );
 
 						/*read content of the subfolder (recursive)*/
-						read_folder ( curfl, &subfl );
+						read_folder ( curfl, &subfl, pissues );
 
 						/*add folder to folder list*/
-						append_sub_folder_to_list ( pfolder, &subfl );
+						append_sub_folder_to_list ( pfolder, &subfl, pissues );
 						break;
 					}
 					case 2:
@@ -387,10 +387,10 @@ int read_folder( char *ppath, folderst *pfolder )
 						reset_file( &tmpfl );
 
 						/*set file attributes*/
-						set_file_attributes( &tmpfl, (*dirst).d_name, &fileattributes, curfl, pfolder );
+						set_file_attributes( &tmpfl, (*dirst).d_name, &fileattributes, curfl, pfolder, pissues );
 
 						/*add file to file list*/
-						append_file_to_list( pfolder, &tmpfl );						
+						append_file_to_list( pfolder, &tmpfl, pissues );
 						break;
 					}
 					case -1:

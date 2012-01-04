@@ -21,9 +21,9 @@ typedef struct wrapper{
 extern int find_folder_in_list( folderst *, folderst* );
 extern int find_file_in_list( filest*, folderst* );
 extern int compare_files( filest*, filest* );
-extern void compare_folders( folderst*, folderst*, GtkProgressBar* );
+extern void compare_folders( folderst*, folderst*, GtkProgressBar*, issue_list* );
 extern int check_root_folders( char*, char* );
-extern gpointer init_compare( sync_folders* );
+extern gpointer init_compare( sync_folders*, issue_list* );
 extern void thread_wrapper_msg( thread_wrap* );
 
 #endif /*COMPAREFOLDERS_H*/

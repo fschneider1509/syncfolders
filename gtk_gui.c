@@ -1,7 +1,6 @@
 /*includes*/
 #include "gtk_gui.h"
 
-/*dialogprint.h*/
 char *build_msg( char *pmsg, char *padd )
 {
 	/*variables*/
@@ -233,8 +232,7 @@ GtkTreeStore *add_folder_view( GtkWidget *playout, GtkWidget **ptview )
 	return filetree;
 }
 
-
-
+/*****************************************************************************************************************************************/
 /*callback functions*/
 void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 {
@@ -253,8 +251,8 @@ void button_open_clicked( GtkButton *pbtn, btn_open_data *data )
 
 	    /*read folder a*/
 	    reset_folder( data->folder );
-	    set_root_folder_attributes( data->folder, folder_path );
-	    read_folder( folder_path , data->folder );
+	    set_root_folder_attributes( data->folder, folder_path, data->issues );
+	    read_folder( folder_path , data->folder, data->issues );
 
 	    /*add folder to treeview; clear before adding*/
 	    if( GTK_IS_TREE_STORE(data->store) )
@@ -280,6 +278,12 @@ void button_sync_clicked( GtkButton *pbtn, sync_folders *param )
 		/*error*/
 		show_msg_dlg( "Synchronisationsvorgang konnte nicht gestartet werden.", "", 1, param->parent );
 }
+
+void button_log_clicked( GtkButton *pbtn, gpointer data )
+{
+
+}
+/*****************************************************************************************************************************************/
 
 void start_gtk_gui( void )
 {
@@ -308,6 +312,7 @@ void start_gtk_gui( void )
 	GtkWidget *progressbar;
 	GtkWidget *progressframe;
 	GtkWidget *progress_layout;
+	issue_list *all_issues;
 
 	/*init threads*/
 	g_thread_init( NULL );
@@ -397,21 +402,25 @@ void start_gtk_gui( void )
 	btn_data_a->folder = g_slice_new( folderst );
 	btn_data_b->folder = g_slice_new( folderst );
 	sync_fl = g_slice_new( sync_folders );
+	all_issues = g_slice_new( issue_list );
 
 	/*save button data*/
 	sync_fl->a = btn_data_a;
 	sync_fl->b = btn_data_b;
 	sync_fl->bar = GTK_PROGRESS_BAR(progressbar);
 	sync_fl->parent = GTK_WINDOW( main_win );
+	sync_fl->issues = all_issues;
 
 	/*button a*/
 	btn_data_a->parent = GTK_WINDOW( main_win );
 	btn_data_a->store = viewleft;
 	btn_data_a->entry = GTK_ENTRY(entry_a);
+	btn_data_a->issues = all_issues;
 	/*button b*/
 	btn_data_b->parent = GTK_WINDOW( main_win );
 	btn_data_b->store = viewright;
 	btn_data_b->entry = GTK_ENTRY(entry_b);
+	btn_data_a->issues = all_issues;
 
 	/*add signals to buttons*/
 	g_signal_connect( btn_open_a, "clicked", G_CALLBACK(button_open_clicked), btn_data_a );

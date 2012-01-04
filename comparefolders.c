@@ -99,7 +99,7 @@ int copy_pathes( folderst *pfolder, char *ppath, char *proot )
 		return -1;
 }
 
-void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *pbar )
+void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *pbar, issue_list *pissues )
 {
 	/*pfoldera is the leading folder*/
 
@@ -123,10 +123,10 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *
 					/*do nothing*/
 					break;
 				case 1:
-					start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]), pbar );
+					start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]), pbar, pissues );
 					break;
 				case 2:
-					start_copy( &((*pfolder_b).filelist[iposfile]), &((*pfolder_a).filelist[i]), pbar );
+					start_copy( &((*pfolder_b).filelist[iposfile]), &((*pfolder_a).filelist[i]), pbar, pissues );
 					break;
 				case 3:
 					/*ask user*/
@@ -134,10 +134,10 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *
 						switch( ask_user( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]) ) )
 						{
 						case 1:
-							start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]), pbar );
+							start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[iposfile]), pbar, pissues );
 							break;
 						case 2:
-							start_copy( &((*pfolder_b).filelist[iposfile]), &((*pfolder_a).filelist[i]), pbar );
+							start_copy( &((*pfolder_b).filelist[iposfile]), &((*pfolder_a).filelist[i]), pbar, pissues );
 							break;
 						default:
 							/*do nothing*/
@@ -165,12 +165,12 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *
 				(*tmpfile).filepath = build_path( (*pfolder_b).folderpath, (*pfolder_a).filelist[i].filename );
 
 				/*append file to list*/
-				if( append_file_to_list( pfolder_b, tmpfile ) == 1 )
+				if( append_file_to_list( pfolder_b, tmpfile, pissues ) == 1 )
 				{
 					/*create shadowfile*/
 					if( create_shadow_file( (*tmpfile).filepath ) == 1 )
 						/*copy file on disk*/
-						start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[(*pfolder_b).numfiles-1]), pbar );
+						start_copy( &((*pfolder_a).filelist[i]), &((*pfolder_b).filelist[(*pfolder_b).numfiles-1]), pbar, pissues );
 					else
 					{
 						print_msg( "file could not be copied", (*pfolder_a).filelist[i].filepath, 2 );
@@ -191,7 +191,7 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *
 		if( iposfolder != -1 )
 		{
 			/*start recursion*/
-			compare_folders( &((*pfolder_a).folderlist[j]), &((*pfolder_b).folderlist[iposfolder]), pbar );
+			compare_folders( &((*pfolder_a).folderlist[j]), &((*pfolder_b).folderlist[iposfolder]), pbar, pissues );
 		}
 		else
 		{
@@ -207,11 +207,11 @@ void compare_folders( folderst *pfolder_a, folderst *pfolder_b, GtkProgressBar *
 				/*set layer*/
 				(*tmpfolder).folderlayer = (*pfolder_a).folderlist[j].folderlayer;
 
-				if( append_sub_folder_to_list( pfolder_b, tmpfolder ) == 1 )
+				if( append_sub_folder_to_list( pfolder_b, tmpfolder, pissues ) == 1 )
 				{
 					copy_folder_on_disk( (*tmpfolder).folderpath );
 					/*start recursion to copy the rest of the files*/
-					compare_folders( &((*pfolder_a).folderlist[j]), &((*pfolder_b).folderlist[(*pfolder_b).numfolders-1]), pbar );
+					compare_folders( &((*pfolder_a).folderlist[j]), &((*pfolder_b).folderlist[(*pfolder_b).numfolders-1]), pbar, pissues );
 				}
 				else
 					print_msg( "folder could not be created", (*pfolder_a).folderlist[j].rootpath, 2 );
@@ -230,7 +230,7 @@ int check_root_folders( char *ppath_a, char *ppath_b )
 		return -1;
 }
 
-gpointer init_compare( sync_folders *pdata )
+gpointer init_compare( sync_folders *pdata, issue_list *pissues )
 {
 	/*variables*/
 	thread_wrap *thread_data;
@@ -242,9 +242,9 @@ gpointer init_compare( sync_folders *pdata )
 	if( check_root_folders( pdata->a->folder->folderpath, pdata->b->folder->folderpath ) == 1 )
 	{
 		/*pfoldera is leading*/
-		compare_folders( pdata->a->folder, pdata->b->folder, pdata->bar );
+		compare_folders( pdata->a->folder, pdata->b->folder, pdata->bar, pissues );
 		/*pfolderb is leading*/
-		//compare_folders( pdata->b->folder, pdata->a->folder, pdata->bar );
+		compare_folders( pdata->b->folder, pdata->a->folder, pdata->bar, pissues );
 
 		/*free memory*/
 		if( pdata->a->folder->empty == 0 )

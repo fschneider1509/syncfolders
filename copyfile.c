@@ -1,7 +1,7 @@
 /*includes*/
 #include "copyfile.h"
 
-int set_physical_change_date( time_t *pdate, filest *pfile )
+int set_physical_change_date( time_t *pdate, filest *pfile, issue_list *pissues )
 {
 	struct utimbuf newtime;
 
@@ -67,7 +67,7 @@ int copy_content( FILE *src, FILE *dest )
 	return 1;
 }
 
-int copy_file_on_disk( filest *srcfile, filest *destfile )
+int copy_file_on_disk( filest *srcfile, filest *destfile, issue_list *pissues )
 {
 	/*variables*/
 	FILE *src;
@@ -89,7 +89,7 @@ int copy_file_on_disk( filest *srcfile, filest *destfile )
 				if( copy_content( src, dest ) == 1 )
 				{
 					/*set the changedate to changedate of srcfile*/
-					set_physical_change_date( &((*srcfile).changedate), destfile );
+					set_physical_change_date( &((*srcfile).changedate), destfile, pissues );
 					/*set the filesize to the size of srcfile*/
 					set_file_size( (*srcfile).filesize, destfile );
 					return 1;
@@ -112,7 +112,7 @@ int copy_file_on_disk( filest *srcfile, filest *destfile )
 	return -1;
 }
 
-void start_copy( filest *pfile_a, filest *pfile_b, GtkProgressBar *pbar )
+void start_copy( filest *pfile_a, filest *pfile_b, GtkProgressBar *pbar, issue_list *pissues )
 {
 	/*set text in progressbar*/
 	gtk_progress_bar_set_pulse_step( pbar, 0.2 );
@@ -120,7 +120,7 @@ void start_copy( filest *pfile_a, filest *pfile_b, GtkProgressBar *pbar )
 	gtk_progress_bar_set_text( pbar, (*pfile_a).filepath );
 	gtk_progress_bar_pulse( pbar );
 
-	if( copy_file_on_disk( pfile_a, pfile_b ) == 1 )
+	if( copy_file_on_disk( pfile_a, pfile_b, pissues ) == 1 )
 		print_ok();
 	else
 		print_fail();
